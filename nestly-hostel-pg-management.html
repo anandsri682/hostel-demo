@@ -1,0 +1,2200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Nestly — Hostel &amp; PG Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+/* ============ TOKENS ============ */
+:root{
+  --bg:#FBFAF7; --surface:#FFFFFF; --surface-2:#F2F0E9; --surface-3:#EAE7DD;
+  --border:#E4E0D5; --border-strong:#D6D1C2;
+  --text:#211F1B; --text-muted:#726C60; --text-faint:#A19B8C;
+  --primary:#2F6F5E; --primary-dark:#234F43; --primary-light:#E6F0EC; --primary-ink:#FFFFFF;
+  --amber:#C8862A; --amber-light:#FBF0DD;
+  --danger:#B5482F; --danger-light:#FBE9E3;
+  --info:#3E6E9E; --info-light:#E7EFF6;
+  --occupied:#3E6E9E; --available:#2F6F5E; --reserved:#C8862A; --maint:#B5482F;
+  --radius-s:8px; --radius-m:14px; --radius-l:20px;
+  --shadow-1:0 1px 2px rgba(33,31,27,0.06);
+  --shadow-2:0 8px 24px -8px rgba(33,31,27,0.16);
+  --font-head:'Sora',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'JetBrains Mono',monospace;
+}
+[data-theme="dark"]{
+  --bg:#14171A; --surface:#1B1F23; --surface-2:#20252A; --surface-3:#282E34;
+  --border:#2C3239; --border-strong:#3A4149;
+  --text:#EDEBE6; --text-muted:#A2A099; --text-faint:#6E6B64;
+  --primary:#4FB295; --primary-dark:#3C8E76; --primary-light:#1E2E2A; --primary-ink:#0E1512;
+  --amber:#E3A44C; --amber-light:#2E2618;
+  --danger:#E17557; --danger-light:#332019;
+  --info:#6C9FCB; --info-light:#1B2732;
+  --occupied:#6C9FCB; --available:#4FB295; --reserved:#E3A44C; --maint:#E17557;
+  --shadow-1:0 1px 2px rgba(0,0,0,0.3); --shadow-2:0 8px 28px -8px rgba(0,0,0,0.55);
+}
+*{box-sizing:border-box;}
+html,body{height:100%;}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--font-body);-webkit-font-smoothing:antialiased;transition:background .2s ease,color .2s ease;}
+h1,h2,h3,h4,.font-head{font-family:var(--font-head);}
+button,input,select,textarea{font-family:inherit;color:inherit;}
+a{color:inherit;}
+::selection{background:var(--primary);color:var(--primary-ink);}
+::-webkit-scrollbar{width:8px;height:8px;}
+::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:8px;}
+::-webkit-scrollbar-track{background:transparent;}
+.scrollbar-none::-webkit-scrollbar{display:none;}
+button{cursor:pointer;}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--primary);outline-offset:1px;}
+
+/* ============ LAYOUT ============ */
+#app{min-height:100vh;}
+.shell{display:flex;min-height:100vh;}
+.sidebar{width:246px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);display:none;flex-direction:column;position:sticky;top:0;height:100vh;}
+.main{flex:1;min-width:0;display:flex;flex-direction:column;}
+.topbar{position:sticky;top:0;z-index:30;background:var(--bg);border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;backdrop-filter:blur(6px);}
+.content{padding:18px 20px 100px;max-width:1360px;width:100%;margin:0 auto;flex:1;}
+@media(min-width:1024px){
+  .sidebar{display:flex;}
+  .content{padding:24px 32px 48px;}
+  .bottomnav{display:none !important;}
+  .mobile-only{display:none !important;}
+}
+@media(max-width:1023px){ .desktop-only{display:none !important;} }
+
+/* sidebar */
+.sb-logo{display:flex;align-items:center;gap:10px;padding:18px 18px 14px;}
+.sb-logo .mark{width:34px;height:34px;border-radius:10px;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:700;font-size:15px;flex-shrink:0;}
+.sb-nav{flex:1;overflow-y:auto;padding:6px 12px;}
+.sb-section{font-size:11px;letter-spacing:.02em;color:var(--text-faint);padding:14px 10px 6px;font-weight:600;}
+.sb-item{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:var(--radius-s);color:var(--text-muted);font-size:14px;font-weight:500;margin-bottom:2px;transition:background .15s,color .15s;position:relative;}
+.sb-item:hover{background:var(--surface-2);color:var(--text);}
+.sb-item.active{background:var(--primary-light);color:var(--primary-dark);font-weight:600;}
+[data-theme="dark"] .sb-item.active{color:var(--primary);}
+.sb-item .ic{width:18px;text-align:center;font-size:15px;}
+.sb-foot{padding:14px;border-top:1px solid var(--border);}
+
+/* topbar bits */
+.tb-search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text-faint);font-size:13.5px;}
+.icon-btn{width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:15px;position:relative;flex-shrink:0;}
+.icon-btn:hover{background:var(--surface-2);}
+.dot-badge{position:absolute;top:5px;right:5px;width:8px;height:8px;border-radius:50%;background:var(--danger);border:2px solid var(--bg);}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+
+/* bottom nav */
+.bottomnav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--border);display:flex;padding:6px 4px calc(6px + env(safe-area-inset-bottom));box-shadow:0 -4px 18px rgba(0,0,0,.06);}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:12px;color:var(--text-faint);font-size:10.5px;font-weight:600;transition:color .15s;}
+.bn-item .ic{font-size:19px;line-height:1;}
+.bn-item.active{color:var(--primary);}
+
+/* ============ COMPONENTS ============ */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);padding:16px 16px 15px;border-left:3px solid var(--primary);}
+.stat .lbl{font-size:12px;color:var(--text-muted);font-weight:500;}
+.stat .val{font-family:var(--font-head);font-size:24px;font-weight:700;margin-top:4px;}
+.stat .sub{font-size:11.5px;color:var(--text-faint);margin-top:3px;}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;border-radius:10px;padding:9px 16px;font-size:13.5px;font-weight:600;border:1px solid transparent;transition:transform .08s,opacity .15s,background .15s;white-space:nowrap;}
+.btn:active{transform:scale(.97);}
+.btn-primary{background:var(--primary);color:var(--primary-ink);}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-outline{background:transparent;border-color:var(--border-strong);color:var(--text);}
+.btn-outline:hover{background:var(--surface-2);}
+.btn-ghost{background:var(--surface-2);color:var(--text);}
+.btn-ghost:hover{background:var(--surface-3);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-sm{padding:6px 11px;font-size:12.5px;border-radius:8px;}
+.btn-block{width:100%;}
+.fab{position:fixed;right:18px;bottom:76px;z-index:35;width:52px;height:52px;border-radius:50%;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--shadow-2);}
+@media(min-width:1024px){.fab{display:none;}}
+
+.badge{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:100px;white-space:nowrap;}
+.badge-success{background:var(--primary-light);color:var(--primary-dark);} [data-theme=dark] .badge-success{color:var(--primary);}
+.badge-amber{background:var(--amber-light);color:var(--amber);}
+.badge-danger{background:var(--danger-light);color:var(--danger);}
+.badge-info{background:var(--info-light);color:var(--info);}
+.badge-neutral{background:var(--surface-3);color:var(--text-muted);}
+
+.field label{display:block;font-size:12.5px;font-weight:600;color:var(--text-muted);margin-bottom:6px;}
+.field input,.field select,.field textarea{width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px 12px;font-size:14px;color:var(--text);}
+.field input:focus,.field select:focus,.field textarea:focus{background:var(--surface);}
+.field{margin-bottom:14px;}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;}
+th{text-align:left;font-size:11.5px;text-transform:uppercase;letter-spacing:.03em;color:var(--text-faint);font-weight:600;padding:10px 14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:12px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+.table-wrap{overflow-x:auto;border-radius:var(--radius-m);border:1px solid var(--border);background:var(--surface);}
+.table-wrap table{border:none;}
+.table-wrap .table-wrap{border:none;}
+
+.tab-row{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;overflow-x:auto;}
+.tab-btn{padding:10px 14px;font-size:13.5px;font-weight:600;color:var(--text-muted);border-bottom:2px solid transparent;white-space:nowrap;}
+.tab-btn.active{color:var(--primary);border-color:var(--primary);}
+
+.modal-backdrop{position:fixed;inset:0;background:rgba(20,20,18,.5);z-index:100;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .15s ease;}
+@media(min-width:640px){.modal-backdrop{align-items:center;padding:20px;}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal-box{background:var(--surface);width:100%;max-width:560px;max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;animation:slideUp .2s ease;}
+@media(min-width:640px){.modal-box{border-radius:18px;animation:popIn .16s ease;}}
+@keyframes slideUp{from{transform:translateY(24px);opacity:.6}to{transform:translateY(0);opacity:1}}
+@keyframes popIn{from{transform:scale(.96);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--surface);z-index:2;}
+.modal-body{padding:18px;}
+
+.toast-wrap{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:8px;align-items:center;width:100%;padding:0 14px;}
+.toast{background:var(--text);color:var(--bg);padding:11px 18px;border-radius:100px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow-2);display:flex;align-items:center;gap:8px;animation:toastIn .18s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+
+.empty{padding:48px 20px;text-align:center;}
+.empty .ic{font-size:34px;margin-bottom:10px;}
+.empty h4{margin:0 0 4px;font-size:15px;}
+.empty p{margin:0 0 14px;color:var(--text-muted);font-size:13.5px;}
+
+.progress-bar{height:6px;border-radius:6px;background:var(--surface-3);overflow:hidden;}
+.progress-bar>div{height:100%;background:var(--primary);border-radius:6px;}
+
+.bed-chip{width:100%;aspect-ratio:1;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;font-weight:700;gap:2px;border:1px solid transparent;}
+.bed-available{background:var(--primary-light);color:var(--primary-dark);}[data-theme=dark] .bed-available{color:var(--primary)}
+.bed-occupied{background:var(--info-light);color:var(--info);}
+.bed-reserved{background:var(--amber-light);color:var(--amber);}
+.bed-maintenance{background:var(--danger-light);color:var(--danger);}
+
+.skeleton{background:linear-gradient(90deg,var(--surface-2) 25%,var(--surface-3) 37%,var(--surface-2) 63%);background-size:400% 100%;animation:sk 1.3s infinite ease;border-radius:8px;}
+@keyframes sk{0%{background-position:100% 50%}100%{background-position:0 50%}}
+
+.section-title{font-family:var(--font-head);font-weight:700;font-size:19px;margin:0;}
+.section-sub{color:var(--text-muted);font-size:13px;margin-top:2px;}
+
+.kv{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px dashed var(--border);font-size:13.5px;}
+.kv:last-child{border-bottom:none;}
+.kv .k{color:var(--text-muted);}
+.kv .v{font-weight:600;}
+
+.step-dot{width:26px;height:26px;border-radius:50%;background:var(--surface-3);color:var(--text-faint);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;}
+.step-dot.done{background:var(--primary);color:var(--primary-ink);}
+.step-dot.now{background:var(--primary-light);color:var(--primary-dark);border:2px solid var(--primary);}
+
+#print-area{display:none;}
+@media print{
+  body *{visibility:hidden;}
+  #print-area,#print-area *{visibility:visible;}
+  #print-area{display:block !important;position:absolute;top:0;left:0;width:100%;padding:20px;}
+}
+.receipt-paper{background:#fff;color:#1a1a1a;border-radius:14px;padding:24px;font-family:var(--font-body);}
+.receipt-paper .rline{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px dashed #ddd;font-size:13.5px;}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;}
+.filter-chip{font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:100px;background:var(--surface-2);border:1px solid var(--border);color:var(--text-muted);}
+.filter-chip.active{background:var(--primary);border-color:var(--primary);color:var(--primary-ink);}
+
+.donut{border-radius:50%;flex-shrink:0;}
+.bar-chart{display:flex;align-items:flex-end;gap:8px;height:120px;}
+.bar-chart .bar{flex:1;background:var(--surface-3);border-radius:6px 6px 3px 3px;position:relative;min-height:4px;transition:height .4s ease;}
+.bar-chart .bar>div{position:absolute;bottom:0;left:0;right:0;background:var(--primary);border-radius:6px 6px 3px 3px;transition:height .5s ease;}
+.bar-chart .lbl{font-size:10px;color:var(--text-faint);text-align:center;margin-top:6px;}
+
+.perm-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);font-size:13.5px;}
+.switch{width:38px;height:22px;border-radius:100px;background:var(--surface-3);position:relative;flex-shrink:0;border:1px solid var(--border);}
+.switch.on{background:var(--primary);border-color:var(--primary);}
+.switch i{position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:#fff;transition:left .15s ease;box-shadow:0 1px 2px rgba(0,0,0,.3);}
+.switch.on i{left:18px;}
+
+.access-denied{text-align:center;padding:80px 20px;}
+</style>
+</head>
+<body data-theme="light">
+<div id="app"></div>
+<div id="modal-root"></div>
+<div class="toast-wrap" id="toast-root"></div>
+<div id="print-area"></div>
+
+<script>
+/* =========================================================================
+   NESTLY — HOSTEL / PG MANAGEMENT SYSTEM (demo)
+   Single-file vanilla JS app. Everything below is in-memory demo data.
+   ========================================================================= */
+
+/* ---------------- UTILITIES ---------------- */
+let UID = 1000;
+const uid = (p='ID') => `${p}-${(UID++).toString(36).toUpperCase()}`;
+const rand = (arr) => arr[Math.floor(Math.random()*arr.length)];
+const randInt = (a,b) => Math.floor(Math.random()*(b-a+1))+a;
+const fmt = (n) => '₹' + Math.round(n).toLocaleString('en-IN');
+const fmtDate = (d) => new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+const fmtDateTime = (d) => new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+const initials = (name) => name.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+const esc = (s='') => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const daysAgo = (n) => { const d = new Date(); d.setDate(d.getDate()-n); return d.toISOString(); };
+const daysFromNow = (n) => { const d = new Date(); d.setDate(d.getDate()+n); return d.toISOString(); };
+
+function badge(text, type='neutral', icon=''){ return `<span class="badge badge-${type}">${icon?icon+' ':''}${esc(text)}</span>`; }
+
+function toast(msg, type='success'){
+  const root = document.getElementById('toast-root');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.innerHTML = `<span>${type==='success'?'✓':type==='error'?'⚠️':'ℹ️'}</span><span>${esc(msg)}</span>`;
+  root.appendChild(el);
+  setTimeout(()=>{ el.style.transition='opacity .3s'; el.style.opacity='0'; setTimeout(()=>el.remove(),300); }, 2600);
+}
+
+function openModal(html){
+  document.getElementById('modal-root').innerHTML = `<div class="modal-backdrop" data-close-modal>
+    <div class="modal-box" onclick="event.stopPropagation()">${html}</div></div>`;
+  document.querySelector('[data-close-modal]').addEventListener('click', closeModal);
+}
+function closeModal(){ document.getElementById('modal-root').innerHTML=''; }
+
+function confirmDialog(title, msg, confirmLabel, onConfirmAction){
+  openModal(`
+    <div class="modal-body" style="text-align:center;padding-top:26px;">
+      <div style="font-size:34px;margin-bottom:10px;">⚠️</div>
+      <h3 style="margin:0 0 8px;font-family:var(--font-head);">${esc(title)}</h3>
+      <p style="color:var(--text-muted);font-size:13.5px;margin:0 0 22px;">${esc(msg)}</p>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-outline btn-block" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger btn-block" onclick="${onConfirmAction};closeModal();">${esc(confirmLabel)}</button>
+      </div>
+    </div>`);
+}
+
+function emptyState(icon, title, desc, actionHtml=''){
+  return `<div class="empty"><div class="ic">${icon}</div><h4>${esc(title)}</h4><p>${esc(desc)}</p>${actionHtml}</div>`;
+}
+
+/* ---------------- SEED DATA ---------------- */
+const FIRST = ["Aarav","Vivaan","Aditya","Vihaan","Arjun","Sai","Reyansh","Krishna","Ishaan","Kabir","Rohan","Karan","Nikhil","Yash","Aryan","Dev","Rahul","Siddharth","Ananya","Diya","Isha","Priya","Sneha","Neha","Pooja","Kavya","Riya","Shreya","Meera","Tanvi","Aisha","Zara"];
+const LAST = ["Sharma","Verma","Reddy","Iyer","Nair","Gupta","Rao","Patel","Kumar","Singh","Das","Menon","Pillai","Chatterjee","Mehta","Joshi","Bansal","Kapoor","Bhat","Naik"];
+const fullName = () => `${rand(FIRST)} ${rand(LAST)}`;
+
+const DB = { properties:[], rooms:[], tenants:[], staff:[], payments:[], expenses:[], complaints:[], tasks:[], visitors:[], notifications:[] };
+
+function seed(){
+  // Properties
+  const propDefs = [
+    {name:"Sunrise PG", location:"Gachibowli, Hyderabad", address:"Plot 14, Financial District Rd, Gachibowli", phone:"+91 98480 11223"},
+    {name:"Green View Residency", location:"Madhapur, Hyderabad", address:"Road No. 36, Jubilee Hills Border, Madhapur", phone:"+91 90000 44556"},
+    {name:"City Comfort PG", location:"Kondapur, Hyderabad", address:"Botanical Garden Rd, Kondapur", phone:"+91 96666 77889"},
+  ];
+  const managers = [];
+  propDefs.forEach((p,i)=>{
+    const mgrName = i===0? "Rajesh Kumar" : i===1 ? "Sunita Reddy" : "Arvind Nair";
+    const prop = { id: uid('PG'), ...p, managerName: mgrName, status:'Active' };
+    DB.properties.push(prop);
+  });
+
+  // Staff (deterministic core roles + workers)
+  const staffSeed = [
+    {name:"Rajesh Kumar", role:"Manager", prop:0},
+    {name:"Sunita Reddy", role:"Manager", prop:1},
+    {name:"Arvind Nair", role:"Manager", prop:2},
+    {name:"Meena Iyer", role:"Accountant", prop:0},
+    {name:"Farhan Sheikh", role:"Accountant", prop:1},
+    {name:"Ramesh Yadav", role:"Warden", prop:0},
+    {name:"Lakshmi Devi", role:"Warden", prop:1},
+    {name:"Suresh Babu", role:"Warden", prop:2},
+    {name:"Ganesh Pal", role:"Cleaner", prop:0},
+    {name:"Mahesh Rao", role:"Cleaner", prop:1},
+    {name:"Vikram Singh", role:"Maintenance", prop:0},
+    {name:"Anil Kumar", role:"Maintenance", prop:2},
+    {name:"Bharat Chowdary", role:"Security", prop:0},
+    {name:"Deepak Verma", role:"Security", prop:1},
+  ];
+  const defaultPerms = { viewTenants:true, manageRooms:false, manageFees:false, printReceipts:false, viewReports:false, manageComplaints:false, manageMaintenance:false };
+  staffSeed.forEach((s,i)=>{
+    const perms = {...defaultPerms};
+    if(s.role==='Manager'){ Object.keys(perms).forEach(k=>perms[k]=true); }
+    if(s.role==='Accountant'){ perms.manageFees=true; perms.printReceipts=true; perms.viewReports=true; }
+    if(s.role==='Warden'){ perms.manageComplaints=true; perms.viewTenants=true; }
+    if(s.role==='Maintenance'||s.role==='Cleaner'){ perms.manageMaintenance=true; }
+    DB.staff.push({
+      id: uid('STF'), name:s.name, phone:`+91 9${randInt(100000000,999999999)}`.slice(0,13),
+      email: s.name.toLowerCase().replace(/ /g,'.')+'@nestly.demo',
+      role:s.role, propertyId: DB.properties[s.prop].id, propertyName: DB.properties[s.prop].name,
+      joiningDate: daysAgo(randInt(60,900)), status:'Active', permissions: perms,
+      photo: initials(s.name)
+    });
+  });
+
+  // Rooms + beds per property
+  const roomTypes = ["Single Sharing","Double Sharing","Triple Sharing","Four Sharing"];
+  DB.properties.forEach((prop, pi)=>{
+    const floors = 3;
+    let roomCounter = 1;
+    const numRooms = pi===0?8:pi===1?7:7;
+    for(let r=0;r<numRooms;r++){
+      const floor = Math.floor(r/3)+1;
+      const capacity = rand([2,2,3,3,4,4,6]);
+      const type = capacity===2?"Double Sharing":capacity===3?"Triple Sharing":capacity===4?"Four Sharing":"Dormitory (6)";
+      const rent = capacity===2?9500:capacity===3?8000:capacity===4?7000:5500;
+      const roomNo = `${floor}0${roomCounter}`;
+      roomCounter++;
+      const beds = [];
+      for(let b=0;b<capacity;b++){
+        beds.push({ id: uid('BED'), label: String.fromCharCode(65+b), status:'available', tenantId:null });
+      }
+      DB.rooms.push({ id: uid('RM'), propertyId: prop.id, propertyName: prop.name, number: roomNo, floor, type, capacity, rent, beds });
+    }
+  });
+
+  // Tenants — fill most beds
+  const allBeds = [];
+  DB.rooms.forEach(room => room.beds.forEach(bed => allBeds.push({room, bed})));
+  const idProofs = ["Aadhaar Card","PAN Card","Passport","Voter ID"];
+  const numTenants = Math.min(allBeds.length - 6, 34); // leave some beds free
+  const shuffled = allBeds.sort(()=>Math.random()-0.5);
+  for(let i=0;i<numTenants;i++){
+    const {room,bed} = shuffled[i];
+    const name = fullName();
+    const gender = rand(['Male','Female']);
+    const checkIn = daysAgo(randInt(10,540));
+    const rent = room.rent;
+    const deposit = rent*2;
+    const paidStatusRoll = Math.random();
+    let pending = 0, status='paid';
+    if(paidStatusRoll < 0.5){ pending = 0; status='paid'; }
+    else if(paidStatusRoll < 0.72){ pending = Math.round(rent*rand([0.3,0.5,0.6])); status='partial'; }
+    else if(paidStatusRoll < 0.9){ pending = rent; status='pending'; }
+    else { pending = rent*2; status='overdue'; }
+    const tenant = {
+      id: uid('TEN'), name, photo: initials(name), phone:`+91 9${randInt(100000000,999999999)}`.slice(0,13),
+      email: name.toLowerCase().replace(/ /g,'.')+'@mail.com',
+      dob: `19${randInt(96,99)}-0${randInt(1,9)}-${randInt(10,28)}`, gender,
+      address: `${randInt(1,400)}, ${rand(['Anand Nagar','Vijay Nagar','Sai Nagar','MG Road','Kondapur','Miyapur'])}, Hyderabad`,
+      emergency: { name: fullName(), phone:`+91 9${randInt(100000000,999999999)}`.slice(0,13), relation: rand(['Father','Mother','Brother','Sister']) },
+      propertyId: room.propertyId, propertyName: room.propertyName, roomId: room.id, roomNumber: room.number, bedId: bed.id, bedLabel: bed.label,
+      checkIn, expectedCheckout: daysFromNow(randInt(30,300)), status:'Active',
+      monthlyRent: rent, deposit, dueDate: 5, pending, paymentStatus: status,
+      lastPaymentDate: pending>0 ? daysAgo(randInt(32,70)) : daysAgo(randInt(1,20)),
+      documents: [ {name:rand(idProofs), type:'ID Proof'}, {name:'Rental Agreement', type:'Agreement'} ]
+    };
+    DB.tenants.push(tenant);
+    bed.status='occupied'; bed.tenantId = tenant.id;
+  }
+  // mark a couple beds reserved/maintenance for realism
+  const freeBeds = allBeds.filter(x=>x.bed.status==='available');
+  if(freeBeds[0]) freeBeds[0].bed.status='reserved';
+  if(freeBeds[1]) freeBeds[1].bed.status='maintenance';
+
+  // Payments (history) — generate from tenants + extra past months
+  const methods = ["Cash","UPI","Bank Transfer","Online Payment"];
+  let recCounter = 118;
+  DB.tenants.forEach(t=>{
+    const monthsBack = randInt(1,4);
+    for(let m=monthsBack;m>=1;m--){
+      if(m===1 && t.pending>0) continue; // current month unpaid/partial handled by pending
+      recCounter++;
+      DB.payments.push({
+        id: uid('PAY'), receiptNo: `RCPT-2026-${String(recCounter).padStart(5,'0')}`,
+        tenantId:t.id, tenantName:t.name, propertyId:t.propertyId, propertyName:t.propertyName,
+        roomNumber:t.roomNumber, bedLabel:t.bedLabel, feeType:'Monthly Rent', amount:t.monthlyRent,
+        date: daysAgo(m*30 + randInt(0,4)), method: rand(methods), txnId: 'TXN'+randInt(100000,999999),
+        status:'Paid', previousBalance:0, paidAmount:t.monthlyRent, remainingBalance:0, notes:''
+      });
+    }
+    if(t.paymentStatus==='partial'){
+      recCounter++;
+      DB.payments.push({
+        id: uid('PAY'), receiptNo: `RCPT-2026-${String(recCounter).padStart(5,'0')}`,
+        tenantId:t.id, tenantName:t.name, propertyId:t.propertyId, propertyName:t.propertyName,
+        roomNumber:t.roomNumber, bedLabel:t.bedLabel, feeType:'Monthly Rent (Partial)', amount:t.monthlyRent-t.pending,
+        date: t.lastPaymentDate, method: rand(methods), txnId:'TXN'+randInt(100000,999999),
+        status:'Partial', previousBalance:t.monthlyRent, paidAmount:t.monthlyRent-t.pending, remainingBalance:t.pending, notes:''
+      });
+    }
+  });
+  DB.payments.sort((a,b)=> new Date(b.date)-new Date(a.date));
+
+  // Expenses
+  const catAmt = {Electricity:[3000,9000],Water:[1500,4000],Internet:[1200,2500],Maintenance:[800,6000],Cleaning:[1000,3000],Salaries:[8000,25000],"Food/Mess":[15000,40000],Repairs:[500,8000],Other:[300,2500]};
+  const cats = Object.keys(catAmt);
+  for(let i=0;i<24;i++){
+    const cat = rand(cats); const [lo,hi] = catAmt[cat]; const prop = rand(DB.properties);
+    DB.expenses.push({ id: uid('EXP'), propertyId:prop.id, propertyName:prop.name, category:cat, amount: randInt(lo,hi),
+      date: daysAgo(randInt(0,58)), description: `${cat} - ${prop.name}`, paidBy: rand(DB.staff.filter(s=>s.role==='Manager')).name });
+  }
+  DB.expenses.sort((a,b)=> new Date(b.date)-new Date(a.date));
+
+  // Complaints
+  const compCats = ["Plumbing","Electricity","Cleaning","Wi-Fi","Room","Food","Security","Other"];
+  const compTitles = {Plumbing:"Leaking tap in bathroom",Electricity:"Room light not working",Cleaning:"Common area needs cleaning",Wifi:"Wi-Fi signal weak",Room:"Cupboard door broken",Food:"Mess food quality issue",Security:"Main gate lock issue",Other:"General maintenance request"};
+  const wardenWorkers = DB.staff.filter(s=>['Cleaner','Maintenance','Security'].includes(s.role));
+  for(let i=0;i<13;i++){
+    const t = rand(DB.tenants); const cat = rand(compCats);
+    const status = rand(['Open','Assigned','In Progress','Resolved','Resolved','Open']);
+    DB.complaints.push({ id: uid('CMP'), title: compTitles[cat]||compTitles.Other, category:cat,
+      description:`Reported by tenant regarding ${cat.toLowerCase()} issue in room ${t.roomNumber}.`,
+      propertyId:t.propertyId, propertyName:t.propertyName, roomNumber:t.roomNumber, tenantId:t.id, tenantName:t.name,
+      priority: rand(['Low','Medium','High']), createdDate: daysAgo(randInt(0,20)),
+      assignedWorkerId: status==='Open'?null:rand(wardenWorkers).id, status });
+  }
+
+  // Tasks
+  const taskSeed = ["Room {r} deep cleaning","Fix bathroom tap - Room {r}","Replace light bulb - Room {r}","Common area cleaning","Pest control - Floor {f}","AC servicing - Room {r}","Fix door lock - Room {r}","Water tank cleaning"];
+  for(let i=0;i<16;i++){
+    const room = rand(DB.rooms); const worker = rand(wardenWorkers);
+    const title = rand(taskSeed).replace('{r}', room.number).replace('{f}', room.floor);
+    DB.tasks.push({ id: uid('TSK'), title, description:`Assigned task at ${room.propertyName}, Room ${room.number}.`,
+      assignedWorkerId: worker.id, assignedWorkerName: worker.name, priority: rand(['Low','Medium','High']),
+      propertyId: room.propertyId, propertyName: room.propertyName, roomNumber: room.number,
+      dueDate: daysFromNow(randInt(-2,7)), status: rand(['Pending','Pending','In Progress','Completed']) });
+  }
+
+  // Visitors
+  for(let i=0;i<9;i++){
+    const t = rand(DB.tenants);
+    const entered = randInt(0,1)===0;
+    DB.visitors.push({ id: uid('VIS'), name: fullName(), phone:`+91 9${randInt(100000000,999999999)}`.slice(0,13),
+      tenantId:t.id, tenantName:t.name, roomNumber:t.roomNumber, propertyName:t.propertyName,
+      purpose: rand(['Family visit','Friend visit','Delivery','Guest stay']),
+      entryTime: daysAgo(0), exitTime: entered? null : daysAgo(0), idProof: rand(idProofs),
+      status: entered? 'Checked In' : 'Checked Out' });
+  }
+
+  // Notifications
+  const notifSeed = [
+    {type:'Payment received', icon:'💰'}, {type:'Rent due', icon:'⏰'}, {type:'Payment overdue', icon:'⚠️'},
+    {type:'Complaint update', icon:'🛠️'}, {type:'Check-in confirmation', icon:'✅'}, {type:'Maintenance update', icon:'🔧'},
+    {type:'Checkout reminder', icon:'📦'}, {type:'Announcement', icon:'📢'}
+  ];
+  for(let i=0;i<12;i++){
+    const n = rand(notifSeed); const t = rand(DB.tenants);
+    DB.notifications.push({ id: uid('NTF'), type:n.type, icon:n.icon,
+      message: `${n.type} — ${t.name}, Room ${t.roomNumber}`,
+      date: daysAgo(randInt(0,6)), read: Math.random()>0.45 });
+  }
+  DB.notifications.sort((a,b)=> new Date(b.date)-new Date(a.date));
+}
+seed();
+
+/* Recompute-able aggregate helpers */
+function allBedsFlat(){ const out=[]; DB.rooms.forEach(r=>r.beds.forEach(b=>out.push({...b, room:r}))); return out; }
+function occupancyFor(propertyId){
+  const rooms = propertyId? DB.rooms.filter(r=>r.propertyId===propertyId): DB.rooms;
+  let total=0, occ=0;
+  rooms.forEach(r=>{ total+=r.beds.length; occ+=r.beds.filter(b=>b.status==='occupied').length; });
+  return {total, occ, avail: total-occ};
+}
+function monthlyRevenue(propertyId){
+  const tenants = propertyId? DB.tenants.filter(t=>t.propertyId===propertyId && t.status==='Active') : DB.tenants.filter(t=>t.status==='Active');
+  return tenants.reduce((s,t)=>s+t.monthlyRent,0);
+}
+function totalPending(propertyId){
+  const tenants = propertyId? DB.tenants.filter(t=>t.propertyId===propertyId): DB.tenants;
+  return tenants.reduce((s,t)=>s+t.pending,0);
+}
+function paymentStatusMeta(status){
+  return {
+    paid:{label:'Paid', type:'success', icon:'🟢'},
+    partial:{label:'Partially Paid', type:'amber', icon:'🟠'},
+    pending:{label:'Pending', type:'danger', icon:'🔴'},
+    overdue:{label:'Overdue', type:'danger', icon:'⚠️'},
+    advance:{label:'Advance', type:'info', icon:'🔵'},
+  }[status] || {label:status,type:'neutral',icon:''};
+}
+function bedStatusMeta(status){
+  return { available:{label:'Available',cls:'bed-available',dot:'🟢'}, occupied:{label:'Occupied',cls:'bed-occupied',dot:'🔵'},
+    reserved:{label:'Reserved',cls:'bed-reserved',dot:'🟠'}, maintenance:{label:'Maintenance',cls:'bed-maintenance',dot:'🔴'} }[status];
+}
+
+/* ---------------- AUTH / USERS ---------------- */
+const DEMO_USERS = [
+  { email:'owner@demo.com', role:'owner', name:'Ananth Rao', title:'Owner / Super Admin' },
+  { email:'manager@demo.com', role:'manager', name:'Rajesh Kumar', title:'Manager', staffId: DB.staff[0].id, propertyId: DB.properties[0].id },
+  { email:'accountant@demo.com', role:'accountant', name:'Meena Iyer', title:'Accountant', staffId: DB.staff[3].id },
+  { email:'warden@demo.com', role:'warden', name:'Ramesh Yadav', title:'Warden', staffId: DB.staff[5].id, propertyId: DB.properties[0].id },
+  { email:'worker@demo.com', role:'worker', name:'Vikram Singh', title:'Maintenance Staff', staffId: DB.staff[10].id },
+];
+const DEMO_PASSWORD = 'demo123';
+
+const ROLE_LABEL = { owner:'Owner / Super Admin', manager:'Manager', accountant:'Accountant', warden:'Warden', worker:'Worker' };
+
+/* ---------------- STATE ---------------- */
+const STATE = {
+  user: null,
+  theme: 'light',
+  view: 'login',
+  params: {},
+  toggles: {},
+  filters: { tenantsQ:'', tenantsStatus:'all', propertyFilter:'all', paymentsQ:'', paymentsMethod:'all' },
+  cart: {}, // payment form scratch
+};
+
+/* ---------------- ACCESS CONTROL ---------------- */
+const VIEW_ACCESS = {
+  dashboard: ['owner','manager','accountant','warden','worker'],
+  properties: ['owner'],
+  'property-detail': ['owner'],
+  rooms: ['owner','manager','warden'],
+  tenants: ['owner','manager','warden'],
+  'tenant-detail': ['owner','manager','warden','accountant'],
+  'tenant-register': ['owner','manager'],
+  fees: ['owner','manager','accountant'],
+  'collect-payment': ['owner','manager','accountant'],
+  receipt: ['owner','manager','accountant'],
+  'payment-history': ['owner','manager','accountant'],
+  expenses: ['owner','manager'],
+  income: ['owner'],
+  staff: ['owner','manager'],
+  tasks: ['owner','manager','warden','worker'],
+  complaints: ['owner','manager','warden','worker'],
+  visitors: ['owner','manager','warden'],
+  attendance: ['owner','warden'],
+  notifications: ['owner','manager','accountant','warden','worker'],
+  reports: ['owner','manager'],
+  settings: ['owner'],
+  search: ['owner','manager','accountant','warden','worker'],
+};
+function canAccess(view){ if(!STATE.user) return false; const roles = VIEW_ACCESS[view]; return roles ? roles.includes(STATE.user.role) : true; }
+
+/* ---------------- NAV CONFIG ---------------- */
+const NAV = {
+  owner: [
+    {view:'dashboard', label:'Dashboard', ic:'🏠'},
+    {view:'properties', label:'Properties', ic:'🏢'},
+    {view:'rooms', label:'Rooms & Beds', ic:'🛏️'},
+    {view:'tenants', label:'Tenants', ic:'👥'},
+    {view:'fees', label:'Fees', ic:'💰'},
+    {view:'expenses', label:'Expenses', ic:'🧾'},
+    {view:'income', label:'Income & Profit', ic:'📈'},
+    {view:'staff', label:'Staff', ic:'🧑‍💼'},
+    {view:'complaints', label:'Complaints', ic:'📣'},
+    {view:'tasks', label:'Maintenance', ic:'🛠️'},
+    {view:'visitors', label:'Visitors', ic:'🚪'},
+    {view:'reports', label:'Reports', ic:'📊'},
+    {view:'notifications', label:'Notifications', ic:'🔔'},
+    {view:'settings', label:'Settings', ic:'⚙️'},
+  ],
+  manager: [
+    {view:'dashboard', label:'Dashboard', ic:'🏠'},
+    {view:'rooms', label:'Rooms & Beds', ic:'🛏️'},
+    {view:'tenants', label:'Tenants', ic:'👥'},
+    {view:'fees', label:'Fees', ic:'💰'},
+    {view:'expenses', label:'Expenses', ic:'🧾'},
+    {view:'staff', label:'Workers', ic:'🧑‍💼'},
+    {view:'complaints', label:'Complaints', ic:'📣'},
+    {view:'tasks', label:'Maintenance', ic:'🛠️'},
+    {view:'visitors', label:'Visitors', ic:'🚪'},
+    {view:'reports', label:'Reports', ic:'📊'},
+    {view:'notifications', label:'Notifications', ic:'🔔'},
+  ],
+  accountant: [
+    {view:'dashboard', label:'Dashboard', ic:'🏠'},
+    {view:'fees', label:'Fees', ic:'💰'},
+    {view:'payment-history', label:'Payment History', ic:'🧾'},
+    {view:'notifications', label:'Notifications', ic:'🔔'},
+  ],
+  warden: [
+    {view:'dashboard', label:'Dashboard', ic:'🏠'},
+    {view:'tenants', label:'Tenants', ic:'👥'},
+    {view:'rooms', label:'Rooms & Beds', ic:'🛏️'},
+    {view:'attendance', label:'Attendance', ic:'📋'},
+    {view:'visitors', label:'Visitors', ic:'🚪'},
+    {view:'complaints', label:'Complaints', ic:'📣'},
+    {view:'tasks', label:'Tasks', ic:'🛠️'},
+    {view:'notifications', label:'Notifications', ic:'🔔'},
+  ],
+  worker: [
+    {view:'dashboard', label:'Home', ic:'🏠'},
+    {view:'tasks', label:'Tasks', ic:'📋'},
+    {view:'complaints', label:'Complaints', ic:'🛠️'},
+    {view:'notifications', label:'Alerts', ic:'🔔'},
+  ],
+};
+const BOTTOM_NAV = {
+  owner: ['dashboard','tenants','rooms','fees','more'],
+  manager: ['dashboard','tenants','rooms','fees','more'],
+  accountant: ['dashboard','fees','payment-history','notifications','more'],
+  warden: ['dashboard','tenants','tasks','notifications','more'],
+  worker: ['dashboard','tasks','complaints','notifications','profile'],
+};
+
+/* ---------------- ROUTER / RENDER ---------------- */
+function setView(view, params={}){
+  if(view!=='login' && !canAccess(view)){
+    STATE.view='access-denied'; STATE.params={attempted:view}; render(); return;
+  }
+  STATE.view = view; STATE.params = params; window.scrollTo(0,0); render();
+}
+function go(view, params){ setView(view, params); }
+
+function login(role){
+  const u = DEMO_USERS.find(x=>x.role===role);
+  STATE.user = u; STATE.view='dashboard'; STATE.params={};
+  toast(`Welcome back, ${u.name.split(' ')[0]}`);
+  render();
+}
+function logout(){ STATE.user=null; STATE.view='login'; render(); }
+function toggleTheme(){
+  STATE.theme = STATE.theme==='light'?'dark':'light';
+  document.body.setAttribute('data-theme', STATE.theme);
+  render();
+}
+
+function render(){
+  const app = document.getElementById('app');
+  if(!STATE.user || STATE.view==='login'){ app.innerHTML = renderLogin(); return; }
+  app.innerHTML = renderShell();
+  attachGlobalHandlers();
+}
+
+/* ---------------- LOGIN VIEW ---------------- */
+function renderLogin(){
+  return `
+  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:
+      radial-gradient(1200px 600px at 10% -10%, var(--primary-light), transparent 60%),
+      radial-gradient(1000px 500px at 110% 110%, var(--amber-light), transparent 55%), var(--bg);">
+    <div style="width:100%;max-width:400px;">
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:26px;">
+        <div style="width:42px;height:42px;border-radius:12px;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:19px;">N</div>
+        <div style="font-family:var(--font-head);font-weight:800;font-size:22px;">Nestly</div>
+      </div>
+      <div class="card" style="padding:26px 22px;box-shadow:var(--shadow-2);">
+        <h1 style="font-size:19px;margin:0 0 4px;">Sign in to your property</h1>
+        <p class="section-sub" style="margin-bottom:20px;">Hostel &amp; PG Management, made simple.</p>
+        <div class="field"><label>Email or mobile number</label><input id="login-email" placeholder="owner@demo.com" value="owner@demo.com"></div>
+        <div class="field"><label>Password</label><input id="login-pass" type="password" placeholder="••••••••" value="demo123"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;font-size:12.5px;">
+          <label style="display:flex;align-items:center;gap:6px;color:var(--text-muted);"><input type="checkbox" checked style="width:14px;height:14px;"> Remember me</label>
+          <a href="#" style="color:var(--primary);font-weight:600;">Forgot password?</a>
+        </div>
+        <button class="btn btn-primary btn-block" onclick="doLogin()">Login</button>
+
+        <div style="margin:20px 0 12px;display:flex;align-items:center;gap:10px;color:var(--text-faint);font-size:11.5px;">
+          <div style="flex:1;height:1px;background:var(--border);"></div>DEMO ACCOUNTS — password: <span style="font-family:var(--font-mono);">${DEMO_PASSWORD}</span><div style="flex:1;height:1px;background:var(--border);"></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${DEMO_USERS.map(u=>`
+            <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="login('${u.role}')">
+              <span>${ {owner:'👑',manager:'🏢',accountant:'💳',warden:'🛎️',worker:'🧰'}[u.role] }</span> ${u.title}
+            </button>`).join('')}
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--text-faint);font-size:12px;margin-top:16px;">Demo build for evaluation purposes — no real data is stored.</p>
+    </div>
+  </div>`;
+}
+function doLogin(){
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const u = DEMO_USERS.find(x=>x.email===email);
+  if(!u || pass!==DEMO_PASSWORD){ toast('Invalid email or password', 'error'); return; }
+  login(u.role);
+}
+
+/* ---------------- SHELL (sidebar / topbar / bottomnav) ---------------- */
+function renderShell(){
+  const role = STATE.user.role;
+  const nav = NAV[role];
+  const unread = DB.notifications.filter(n=>!n.read).length;
+  return `
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="sb-logo">
+        <div class="mark">N</div>
+        <div><div style="font-family:var(--font-head);font-weight:800;font-size:16px;line-height:1;">Nestly</div>
+        <div style="font-size:11px;color:var(--text-faint);">PG Management</div></div>
+      </div>
+      <nav class="sb-nav">
+        ${nav.map(item=>`
+          <div class="sb-item ${STATE.view===item.view?'active':''}" data-nav="${item.view}">
+            <span class="ic">${item.ic}</span><span>${item.label}</span>
+          </div>`).join('')}
+      </nav>
+      <div class="sb-foot">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div class="avatar">${initials(STATE.user.name)}</div>
+          <div style="min-width:0;flex:1;">
+            <div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${STATE.user.name}</div>
+            <div style="font-size:11px;color:var(--text-faint);">${ROLE_LABEL[role]}</div>
+          </div>
+          <button class="icon-btn" style="width:30px;height:30px;" title="Logout" data-action="logout">⏻</button>
+        </div>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="topbar">
+        <button class="icon-btn mobile-only" style="border:none;background:transparent;" data-nav="dashboard">
+          <span style="font-family:var(--font-head);font-weight:800;font-size:15px;color:var(--primary);">N</span>
+        </button>
+        <div class="tb-search" data-action="open-search">
+          <span>🔍</span><span>Search tenants, rooms, receipts…</span>
+        </div>
+        <div style="flex:1;" class="desktop-only"></div>
+        <button class="icon-btn" title="Toggle theme" onclick="toggleTheme()">${STATE.theme==='light'?'🌙':'☀️'}</button>
+        <button class="icon-btn desktop-only" title="Notifications" data-nav="notifications">🔔${unread?'<span class="dot-badge"></span>':''}</button>
+        <div class="avatar desktop-only" style="cursor:pointer;" data-action="open-profile">${initials(STATE.user.name)}</div>
+      </div>
+      <div class="content" id="content-root">
+        ${renderView()}
+      </div>
+    </div>
+  </div>
+
+  ${renderBottomNav()}
+  ${renderFab()}
+  `;
+}
+
+function renderBottomNav(){
+  const role = STATE.user.role;
+  const items = BOTTOM_NAV[role];
+  const labelIcon = {
+    dashboard:['🏠', role==='worker'?'Home':'Home'], tenants:['👥','Tenants'], rooms:['🛏️','Rooms'], fees:['💰','Fees'],
+    'payment-history':['🧾','History'], tasks:['📋','Tasks'], complaints:['🛠️','Work'], notifications:['🔔','Alerts'],
+    more:['☰','More'], profile:['👤','Profile']
+  };
+  return `<nav class="bottomnav">
+    ${items.map(v=>{
+      const [ic,label] = labelIcon[v];
+      const active = v==='more'||v==='profile' ? false : STATE.view===v;
+      const action = v==='more' ? `data-action="open-more"` : v==='profile' ? `data-action="open-profile"` : `data-nav="${v}"`;
+      return `<button class="bn-item ${active?'active':''}" ${action}><span class="ic">${ic}</span><span>${label}</span></button>`;
+    }).join('')}
+  </nav>`;
+}
+
+function renderFab(){
+  const role = STATE.user.role;
+  const map = {
+    owner: {label:'+ Add Tenant', action:"go('tenant-register')"},
+    manager: {label:'+ Add Tenant', action:"go('tenant-register')"},
+    accountant: {label:'₹', action:"openCollectPaymentPicker()"},
+    warden: {label:'+', action:"go('complaints')"},
+  };
+  if(!map[role]) return '';
+  if(['tenant-register','collect-payment','receipt'].includes(STATE.view)) return '';
+  return `<button class="fab mobile-only" data-action="fab-action" title="Quick add">+</button>`;
+}
+
+function openMoreSheet(){
+  const role = STATE.user.role;
+  const nav = NAV[role];
+  const shown = new Set(BOTTOM_NAV[role]);
+  const rest = nav.filter(n=>!shown.has(n.view));
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">More</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" style="padding-top:8px;">
+      ${rest.map(item=>`<div class="sb-item" style="padding:13px 10px;font-size:15px;" onclick="closeModal();go('${item.view}')"><span class="ic">${item.ic}</span><span>${item.label}</span></div>`).join('')}
+      <div class="sb-item" style="padding:13px 10px;font-size:15px;color:var(--danger);" onclick="closeModal();logout()"><span class="ic">⏻</span><span>Logout</span></div>
+    </div>`);
+}
+function openProfileMenu(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Profile</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px;">
+        <div class="avatar" style="width:48px;height:48px;font-size:16px;">${initials(STATE.user.name)}</div>
+        <div><div style="font-weight:700;">${STATE.user.name}</div><div style="font-size:12.5px;color:var(--text-muted);">${STATE.user.email}</div></div>
+      </div>
+      ${badge(ROLE_LABEL[STATE.user.role],'info')}
+      <div style="margin-top:18px;display:flex;flex-direction:column;gap:8px;">
+        <button class="btn btn-outline btn-block" onclick="closeModal();toast('Password change is disabled in demo mode','info')">Change Password</button>
+        <button class="btn btn-outline btn-block" onclick="closeModal();go('settings')" ${STATE.user.role!=='owner'?'disabled style="opacity:.5"':''}>Account Settings</button>
+        <button class="btn btn-danger btn-block" onclick="closeModal();logout()">Logout</button>
+      </div>
+    </div>`);
+}
+
+function openSearch(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Search</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <input id="global-search-input" placeholder="Search tenants, rooms, receipts, staff…" autofocus oninput="doGlobalSearch(this.value)"
+        style="width:100%;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:11px 13px;font-size:14.5px;">
+      <div id="global-search-results" style="margin-top:14px;max-height:50vh;overflow-y:auto;"></div>
+    </div>`);
+  setTimeout(()=>document.getElementById('global-search-input')?.focus(),50);
+}
+function doGlobalSearch(q){
+  const root = document.getElementById('global-search-results');
+  q = q.trim().toLowerCase();
+  if(q.length<2){ root.innerHTML = `<p style="color:var(--text-faint);font-size:13px;text-align:center;padding:20px 0;">Type at least 2 characters…</p>`; return; }
+  let out = [];
+  DB.tenants.filter(t=>t.name.toLowerCase().includes(q)||t.roomNumber.includes(q)).slice(0,5).forEach(t=>
+    out.push(`<div class="sb-item" style="padding:10px;" onclick="closeModal();go('tenant-detail',{id:'${t.id}'})"><span class="ic">👤</span><span>${t.name} — Room ${t.roomNumber}${badge(paymentStatusMeta(t.paymentStatus).label,paymentStatusMeta(t.paymentStatus).type)}</span></div>`));
+  DB.rooms.filter(r=>r.number.includes(q)).slice(0,4).forEach(r=>
+    out.push(`<div class="sb-item" style="padding:10px;" onclick="closeModal();go('rooms')"><span class="ic">🛏️</span><span>Room ${r.number} — ${r.propertyName}</span></div>`));
+  DB.payments.filter(p=>p.receiptNo.toLowerCase().includes(q)||p.tenantName.toLowerCase().includes(q)).slice(0,4).forEach(p=>
+    out.push(`<div class="sb-item" style="padding:10px;" onclick="closeModal();openReceipt('${p.id}')"><span class="ic">🧾</span><span>${p.receiptNo} — ${p.tenantName}</span></div>`));
+  DB.staff.filter(s=>s.name.toLowerCase().includes(q)).slice(0,4).forEach(s=>
+    out.push(`<div class="sb-item" style="padding:10px;"><span class="ic">🧑‍💼</span><span>${s.name} — ${s.role}</span></div>`));
+  DB.complaints.filter(c=>c.title.toLowerCase().includes(q)).slice(0,4).forEach(c=>
+    out.push(`<div class="sb-item" style="padding:10px;" onclick="closeModal();go('complaints')"><span class="ic">📣</span><span>${c.title} — ${c.tenantName}</span></div>`));
+  root.innerHTML = out.length ? out.join('') : emptyState('🔍','No results', `Nothing matches "${esc(q)}"`);
+}
+
+/* generic FAB dispatcher */
+function fabAction(){
+  const role = STATE.user.role;
+  if(role==='owner'||role==='manager') go('tenant-register');
+  else if(role==='accountant') openCollectPaymentPicker();
+  else if(role==='warden') go('complaints');
+}
+function openCollectPaymentPicker(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Collect Fee — select tenant</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <select id="pick-tenant" class="field" style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:10px;width:100%;">
+        ${DB.tenants.filter(t=>t.status==='Active').map(t=>`<option value="${t.id}">${t.name} — Room ${t.roomNumber} (${fmt(t.pending)} pending)</option>`).join('')}
+      </select>
+      <button class="btn btn-primary btn-block" onclick="const id=document.getElementById('pick-tenant').value;closeModal();go('collect-payment',{tenantId:id})">Continue</button>
+    </div>`);
+}
+
+/* ---------------- VIEW DISPATCH ---------------- */
+function renderView(){
+  switch(STATE.view){
+    case 'dashboard': return renderDashboard();
+    case 'properties': return renderProperties();
+    case 'property-detail': return renderPropertyDetail();
+    case 'rooms': return renderRooms();
+    case 'tenants': return renderTenants();
+    case 'tenant-detail': return renderTenantDetail();
+    case 'tenant-register': return renderTenantRegister();
+    case 'fees': return renderFees();
+    case 'collect-payment': return renderCollectPayment();
+    case 'receipt': return renderReceiptView();
+    case 'payment-history': return renderPaymentHistory();
+    case 'expenses': return renderExpenses();
+    case 'income': return renderIncome();
+    case 'staff': return renderStaff();
+    case 'tasks': return renderTasks();
+    case 'complaints': return renderComplaints();
+    case 'visitors': return renderVisitors();
+    case 'attendance': return renderAttendance();
+    case 'notifications': return renderNotifications();
+    case 'reports': return renderReports();
+    case 'settings': return renderSettings();
+    case 'access-denied': return renderAccessDenied();
+    default: return renderAccessDenied();
+  }
+}
+function renderAccessDenied(){
+  return `<div class="access-denied">
+    <div style="font-size:44px;">🔒</div>
+    <h2 style="font-family:var(--font-head);">Access Denied</h2>
+    <p style="color:var(--text-muted);">Your role (${ROLE_LABEL[STATE.user.role]}) doesn't have permission to view <code>/${esc(STATE.params.attempted||'')}</code>.</p>
+    <button class="btn btn-primary" onclick="go('dashboard')">Back to Dashboard</button>
+  </div>`;
+}
+
+/* ---------------- PAGE HEADER helper ---------------- */
+function pageHeader(title, sub, actionsHtml=''){
+  return `<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px;flex-wrap:wrap;">
+    <div><h1 class="section-title">${title}</h1>${sub?`<p class="section-sub">${sub}</p>`:''}</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">${actionsHtml}</div>
+  </div>`;
+}
+
+/* ================= DASHBOARD ================= */
+function renderDashboard(){
+  const role = STATE.user.role;
+  if(role==='worker') return renderWorkerDashboard();
+  if(role==='warden') return renderWardenDashboard();
+  if(role==='accountant') return renderAccountantDashboard();
+  return renderOwnerManagerDashboard(role);
+}
+
+function miniBarChart(values, labels, height=110){
+  const max = Math.max(...values, 1);
+  return `<div class="bar-chart" style="height:${height}px;">
+    ${values.map((v,i)=>`<div class="bar" style="height:100%;"><div style="height:${(v/max*100).toFixed(0)}%;"></div></div>`).join('')}
+  </div>
+  <div style="display:flex;gap:8px;margin-top:2px;">${labels.map(l=>`<div class="lbl" style="flex:1;">${l}</div>`).join('')}</div>`;
+}
+
+function renderOwnerManagerDashboard(role){
+  const isOwner = role==='owner';
+  const propertyId = isOwner ? null : STATE.user.propertyId;
+  const occ = occupancyFor(propertyId);
+  const revenue = monthlyRevenue(propertyId);
+  const pending = totalPending(propertyId);
+  const tenants = propertyId? DB.tenants.filter(t=>t.propertyId===propertyId) : DB.tenants;
+  const revSeries = [0,1,2,3,4,5].map(i=> Math.round(revenue*(0.7+Math.random()*0.5) * (1-i*0.03)) ).reverse();
+  const months = ['Apr','May','Jun','Jul','Aug','Sep'];
+  const recentPayments = (propertyId? DB.payments.filter(p=>p.propertyId===propertyId): DB.payments).slice(0,5);
+
+  const kpis = [
+    ...(isOwner? [{lbl:'Total Properties', val: DB.properties.length, sub:`Across Hyderabad`}] : []),
+    {lbl:'Total Rooms', val: (propertyId? DB.rooms.filter(r=>r.propertyId===propertyId):DB.rooms).length, sub:`${occ.total} beds total`},
+    {lbl:'Occupied Beds', val: occ.occ, sub:`${occ.avail} available`},
+    {lbl:'Total Tenants', val: tenants.filter(t=>t.status==='Active').length, sub:'Active residents'},
+    {lbl:'Monthly Revenue', val: fmt(revenue), sub:'Expected this month'},
+    {lbl:'Pending Fees', val: fmt(pending), sub: pending>0? 'Needs follow-up':'All clear'},
+  ];
+
+  return `
+  ${pageHeader(`Welcome back, ${STATE.user.name.split(' ')[0]} 👋`, isOwner? `Here's what's happening across all ${DB.properties.length} properties today.` : `Here's today's snapshot for ${DB.properties.find(p=>p.id===propertyId)?.name||''}.`)}
+
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;" class="kpi-grid">
+    ${kpis.map(k=>`<div class="stat"><div class="lbl">${k.lbl}</div><div class="val">${k.val}</div><div class="sub">${k.sub}</div></div>`).join('')}
+  </div>
+  <style>@media(min-width:640px){.kpi-grid{grid-template-columns:repeat(3,1fr) !important;}}@media(min-width:1024px){.kpi-grid{grid-template-columns:repeat(${kpis.length},1fr) !important;}}</style>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:20px;" class="two-col">
+    <div class="card" style="padding:18px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+        <h3 style="margin:0;font-size:15px;">Monthly Revenue Trend</h3>${badge('+8.2% vs last month','success')}
+      </div>
+      ${miniBarChart(revSeries, months)}
+    </div>
+    <div class="card" style="padding:18px;">
+      <h3 style="margin:0 0 14px;font-size:15px;">Occupancy Overview</h3>
+      <div style="display:flex;align-items:center;gap:18px;">
+        <svg width="108" height="108" viewBox="0 0 36 36">
+          <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--surface-3)" stroke-width="4"></circle>
+          <circle cx="18" cy="18" r="15.5" fill="none" stroke="var(--primary)" stroke-width="4"
+            stroke-dasharray="${(occ.occ/occ.total*97.4).toFixed(1)} 97.4" stroke-linecap="round" transform="rotate(-90 18 18)"></circle>
+          <text x="18" y="20" text-anchor="middle" font-size="8" font-weight="700" fill="var(--text)">${Math.round(occ.occ/occ.total*100)}%</text>
+        </svg>
+        <div style="flex:1;">
+          <div class="kv"><span class="k">🔵 Occupied</span><span class="v">${occ.occ}</span></div>
+          <div class="kv"><span class="k">🟢 Available</span><span class="v">${occ.avail}</span></div>
+          <div class="kv"><span class="k">Total beds</span><span class="v">${occ.total}</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>@media(min-width:900px){.two-col{grid-template-columns:1.4fr 1fr !important;}}</style>
+
+  <div style="margin-bottom:14px;">
+    <h3 style="font-size:15px;margin:0 0 10px;">Quick Actions</h3>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;" class="qa-grid">
+      ${(isOwner? [
+        {ic:'🏢',label:'Add PG',action:"toast('Add PG form (demo)','info')"},
+        {ic:'👤',label:'Add Tenant',action:"go('tenant-register')"},
+        {ic:'🛏️',label:'Add Room',action:"toast('Add Room form (demo)','info')"},
+        {ic:'💰',label:'Collect Fee',action:"openCollectPaymentPicker()"},
+        {ic:'🧑‍💼',label:'Add Staff',action:"go('staff')"},
+        {ic:'📊',label:'Reports',action:"go('reports')"},
+      ] : [
+        {ic:'👤',label:'Add Tenant',action:"go('tenant-register')"},
+        {ic:'💰',label:'Collect Fee',action:"openCollectPaymentPicker()"},
+        {ic:'🛏️',label:'Rooms',action:"go('rooms')"},
+        {ic:'📣',label:'Complaints',action:"go('complaints')"},
+        {ic:'🛠️',label:'Tasks',action:"go('tasks')"},
+        {ic:'📊',label:'Reports',action:"go('reports')"},
+      ]).map(q=>`<button class="card" style="padding:14px 8px;text-align:center;" onclick="${q.action}">
+        <div style="font-size:22px;">${q.ic}</div><div style="font-size:12px;font-weight:600;margin-top:6px;">${q.label}</div>
+      </button>`).join('')}
+    </div>
+    <style>@media(min-width:640px){.qa-grid{grid-template-columns:repeat(6,1fr) !important;}}</style>
+  </div>
+
+  <div class="card" style="padding:18px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <h3 style="margin:0;font-size:15px;">Recent Activity</h3><a style="font-size:12.5px;color:var(--primary);font-weight:600;cursor:pointer;" onclick="go('payment-history')">View all</a>
+    </div>
+    ${recentPayments.map(p=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);">
+        <div class="avatar" style="background:var(--primary-light);color:var(--primary-dark);">${initials(p.tenantName)}</div>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13.5px;font-weight:600;">Payment received — ${p.tenantName}</div>
+          <div style="font-size:12px;color:var(--text-faint);">Room ${p.roomNumber} · ${fmtDate(p.date)}</div>
+        </div>
+        <div style="font-weight:700;font-size:13.5px;">${fmt(p.paidAmount)}</div>
+      </div>`).join('')}
+  </div>
+  `;
+}
+
+function renderAccountantDashboard(){
+  const today = new Date().toDateString();
+  const todayCollection = DB.payments.filter(p=>new Date(p.date).toDateString()===today).reduce((s,p)=>s+p.paidAmount,0);
+  const monthCollection = DB.payments.filter(p=>{const d=new Date(p.date);const n=new Date();return d.getMonth()===n.getMonth();}).reduce((s,p)=>s+p.paidAmount,0);
+  const pending = DB.tenants.reduce((s,t)=>s+t.pending,0);
+  const overdueTenants = DB.tenants.filter(t=>t.paymentStatus==='overdue');
+  return `
+  ${pageHeader(`Fee Collection Dashboard`, `Welcome, ${STATE.user.name.split(' ')[0]} — here's today's collection status.`)}
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;" class="kpi-grid2">
+    <div class="stat"><div class="lbl">Today's Collection</div><div class="val">${fmt(todayCollection)}</div></div>
+    <div class="stat"><div class="lbl">Monthly Collection</div><div class="val">${fmt(monthCollection)}</div></div>
+    <div class="stat" style="border-left-color:var(--amber);"><div class="lbl">Pending Amount</div><div class="val">${fmt(pending)}</div></div>
+    <div class="stat" style="border-left-color:var(--danger);"><div class="lbl">Overdue Tenants</div><div class="val">${overdueTenants.length}</div></div>
+  </div>
+  <style>@media(min-width:640px){.kpi-grid2{grid-template-columns:repeat(4,1fr) !important;}}</style>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px;">
+    <button class="btn btn-primary" onclick="openCollectPaymentPicker()">💰 Collect Payment</button>
+    <button class="btn btn-outline" onclick="go('payment-history')">🧾 View History</button>
+  </div>
+
+  <div class="card" style="padding:18px;">
+    <h3 style="margin:0 0 12px;font-size:15px;">Tenants overdue on payment</h3>
+    ${overdueTenants.length? overdueTenants.map(t=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);">
+        <div class="avatar" style="background:var(--danger-light);color:var(--danger);">${t.photo}</div>
+        <div style="flex:1;"><div style="font-weight:600;font-size:13.5px;">${t.name}</div><div style="font-size:12px;color:var(--text-faint);">Room ${t.roomNumber} · ${t.propertyName}</div></div>
+        <div style="font-weight:700;color:var(--danger);font-size:13.5px;">${fmt(t.pending)}</div>
+        <button class="btn btn-sm btn-primary" onclick="go('collect-payment',{tenantId:'${t.id}'})">Collect</button>
+      </div>`).join('') : emptyState('✅','All caught up','No overdue payments right now.')}
+  </div>`;
+}
+
+function renderWardenDashboard(){
+  const propertyId = STATE.user.propertyId;
+  const complaints = DB.complaints.filter(c=>c.propertyId===propertyId && c.status!=='Resolved');
+  const visitorsToday = DB.visitors.filter(v=>v.status==='Checked In');
+  const occ = occupancyFor(propertyId);
+  return `
+  ${pageHeader(`Warden Dashboard`, `${DB.properties.find(p=>p.id===propertyId)?.name} — daily operations overview.`)}
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;" class="kpi-grid2">
+    <div class="stat"><div class="lbl">Active Tenants</div><div class="val">${DB.tenants.filter(t=>t.propertyId===propertyId && t.status==='Active').length}</div></div>
+    <div class="stat"><div class="lbl">Occupied / Total Beds</div><div class="val">${occ.occ}/${occ.total}</div></div>
+    <div class="stat" style="border-left-color:var(--amber);"><div class="lbl">Open Complaints</div><div class="val">${complaints.length}</div></div>
+    <div class="stat" style="border-left-color:var(--info);"><div class="lbl">Visitors In</div><div class="val">${visitorsToday.length}</div></div>
+  </div>
+  <style>@media(min-width:640px){.kpi-grid2{grid-template-columns:repeat(4,1fr) !important;}}</style>
+
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <button class="btn btn-primary" onclick="go('attendance')">📋 Mark Attendance</button>
+    <button class="btn btn-outline" onclick="go('visitors')">🚪 Visitors</button>
+    <button class="btn btn-outline" onclick="go('complaints')">📣 Complaints</button>
+  </div>
+
+  <div class="card" style="padding:18px;">
+    <h3 style="margin:0 0 12px;font-size:15px;">Open Complaints</h3>
+    ${complaints.length? complaints.slice(0,6).map(c=>`
+      <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);">
+        <div style="flex:1;"><div style="font-weight:600;font-size:13.5px;">${c.title}</div><div style="font-size:12px;color:var(--text-faint);">Room ${c.roomNumber} · ${c.tenantName}</div></div>
+        ${badge(c.status, c.status==='Open'?'danger':c.status==='In Progress'?'amber':'info')}
+      </div>`).join('') : emptyState('✅','No open complaints','Everything looks good today.')}
+  </div>`;
+}
+
+function renderWorkerDashboard(){
+  const myTasks = DB.tasks.filter(t=>t.assignedWorkerId===STATE.user.staffId);
+  const pending = myTasks.filter(t=>t.status!=='Completed');
+  const myComplaints = DB.complaints.filter(c=>c.assignedWorkerId===STATE.user.staffId && c.status!=='Resolved');
+  return `
+  ${pageHeader(`Hi, ${STATE.user.name.split(' ')[0]} 👋`, `You have ${pending.length} task${pending.length!==1?'s':''} pending today.`)}
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
+    <div class="stat"><div class="lbl">Pending</div><div class="val">${myTasks.filter(t=>t.status==='Pending').length}</div></div>
+    <div class="stat" style="border-left-color:var(--info);"><div class="lbl">In Progress</div><div class="val">${myTasks.filter(t=>t.status==='In Progress').length}</div></div>
+    <div class="stat" style="border-left-color:var(--primary);"><div class="lbl">Completed</div><div class="val">${myTasks.filter(t=>t.status==='Completed').length}</div></div>
+  </div>
+
+  <h3 style="font-size:15px;margin:0 0 10px;">Your Tasks Today</h3>
+  <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:22px;">
+    ${pending.length? pending.map(t=>workerTaskCard(t)).join('') : emptyState('🎉','All caught up','No pending tasks assigned to you.')}
+  </div>
+
+  ${myComplaints.length? `<h3 style="font-size:15px;margin:0 0 10px;">Assigned Complaints</h3>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    ${myComplaints.map(c=>`
+      <div class="card" style="padding:14px;">
+        <div style="display:flex;justify-content:space-between;"><strong style="font-size:13.5px;">${c.title}</strong>${badge(c.priority, c.priority==='High'?'danger':c.priority==='Medium'?'amber':'neutral')}</div>
+        <div style="font-size:12.5px;color:var(--text-faint);margin:4px 0 10px;">Room ${c.roomNumber} · ${c.propertyName}</div>
+        <button class="btn btn-sm btn-outline" onclick="updateComplaintStatus('${c.id}','In Progress')">Mark In Progress</button>
+        <button class="btn btn-sm btn-primary" onclick="updateComplaintStatus('${c.id}','Resolved')">Resolve</button>
+      </div>`).join('')}
+  </div>` : ''}
+  `;
+}
+function workerTaskCard(t){
+  return `<div class="card" style="padding:14px;">
+    <div style="display:flex;justify-content:space-between;gap:8px;">
+      <strong style="font-size:14px;">${t.title}</strong>
+      ${badge(t.priority, t.priority==='High'?'danger':t.priority==='Medium'?'amber':'neutral')}
+    </div>
+    <div style="font-size:12.5px;color:var(--text-faint);margin:5px 0 12px;">${t.propertyName} · Room ${t.roomNumber} · Due ${fmtDate(t.dueDate)}</div>
+    <div style="display:flex;gap:8px;">
+      ${t.status==='Pending'?`<button class="btn btn-sm btn-outline btn-block" onclick="updateTaskStatus('${t.id}','In Progress')">Start Task</button>`:''}
+      ${t.status==='In Progress'?`<button class="btn btn-sm btn-primary btn-block" onclick="updateTaskStatus('${t.id}','Completed')">Mark Completed</button>`:''}
+      ${t.status==='Pending'?`<button class="btn btn-sm btn-primary" onclick="updateTaskStatus('${t.id}','Completed')">Complete</button>`:''}
+    </div>
+  </div>`;
+}
+function updateTaskStatus(id, status){
+  const t = DB.tasks.find(x=>x.id===id); if(!t) return; t.status=status;
+  toast(`Task marked ${status}`); render();
+}
+function updateComplaintStatus(id, status){
+  const c = DB.complaints.find(x=>x.id===id); if(!c) return; c.status=status;
+  toast(`Complaint marked ${status}`); render();
+}
+
+/* ================= PROPERTIES ================= */
+function renderProperties(){
+  return `
+  ${pageHeader('Properties', `Managing ${DB.properties.length} PG properties`, `<button class="btn btn-primary btn-sm" onclick="toast('Add PG form (demo)','info')">+ Add PG</button>`)}
+  <div style="display:grid;grid-template-columns:1fr;gap:14px;" class="prop-grid">
+    ${DB.properties.map(p=>{
+      const occ = occupancyFor(p.id); const rev = monthlyRevenue(p.id); const pending = totalPending(p.id);
+      return `<div class="card" style="padding:18px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+          <div>
+            <h3 style="margin:0;font-size:16px;">${p.name}</h3>
+            <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">📍 ${p.location}</div>
+          </div>
+          ${badge(p.status,'success')}
+        </div>
+        <div style="font-size:12.5px;color:var(--text-faint);margin:8px 0 12px;">${p.address} · ${p.phone}</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:12px;">
+          <div class="kv" style="border:none;padding:4px 0;"><span class="k">Manager</span><span class="v">${p.managerName}</span></div>
+          <div class="kv" style="border:none;padding:4px 0;"><span class="k">Rooms</span><span class="v">${DB.rooms.filter(r=>r.propertyId===p.id).length}</span></div>
+          <div class="kv" style="border:none;padding:4px 0;"><span class="k">Occupied Beds</span><span class="v">${occ.occ}/${occ.total}</span></div>
+          <div class="kv" style="border:none;padding:4px 0;"><span class="k">Available Beds</span><span class="v">${occ.avail}</span></div>
+          <div class="kv" style="border:none;padding:4px 0;"><span class="k">Monthly Revenue</span><span class="v">${fmt(rev)}</span></div>
+          <div class="kv" style="border:none;padding:4px 0;"><span class="k">Pending Fees</span><span class="v" style="color:${pending>0?'var(--danger)':'inherit'}">${fmt(pending)}</span></div>
+        </div>
+        <div class="progress-bar" style="margin-bottom:14px;"><div style="width:${(occ.occ/occ.total*100).toFixed(0)}%;"></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button class="btn btn-sm btn-outline" onclick="go('rooms',{property:'${p.id}'})">Manage Rooms</button>
+          <button class="btn btn-sm btn-outline" onclick="go('tenants',{property:'${p.id}'})">Tenants</button>
+          <button class="btn btn-sm btn-outline" onclick="go('staff',{property:'${p.id}'})">Staff</button>
+          <button class="btn btn-sm btn-ghost" onclick="go('reports',{property:'${p.id}'})">Reports</button>
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+  <style>@media(min-width:900px){.prop-grid{grid-template-columns:repeat(2,1fr) !important;}}@media(min-width:1300px){.prop-grid{grid-template-columns:repeat(3,1fr) !important;}}</style>
+  `;
+}
+function renderPropertyDetail(){ return renderProperties(); }
+
+/* ================= ROOMS & BEDS ================= */
+function renderRooms(){
+  const role = STATE.user.role;
+  const scopedProps = role==='owner' ? DB.properties : DB.properties.filter(p=>p.id===STATE.user.propertyId);
+  const activeProp = STATE.params.property || scopedProps[0]?.id;
+  const rooms = DB.rooms.filter(r=>r.propertyId===activeProp);
+  return `
+  ${pageHeader('Rooms & Beds', 'Visual overview of every room and bed status.', `<button class="btn btn-primary btn-sm" onclick="toast('Add Room form (demo)','info')">+ Add Room</button>`)}
+  ${scopedProps.length>1? `<div class="chip-row" style="margin-bottom:16px;">
+    ${scopedProps.map(p=>`<div class="filter-chip ${p.id===activeProp?'active':''}" onclick="go('rooms',{property:'${p.id}'})">${p.name}</div>`).join('')}
+  </div>` : ''}
+  <div class="chip-row" style="margin-bottom:18px;">
+    ${['available','occupied','reserved','maintenance'].map(s=>{const m=bedStatusMeta(s); return `<div class="filter-chip">${m.dot} ${m.label}</div>`}).join('')}
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr;gap:14px;" class="room-grid">
+    ${rooms.map(room=>{
+      const occCount = room.beds.filter(b=>b.status==='occupied').length;
+      const full = occCount===room.beds.length;
+      return `<div class="card" style="padding:16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <h3 style="margin:0;font-size:15.5px;">Room ${room.number}</h3>
+          ${badge(full?'Fully Occupied':`${room.beds.length-occCount} Available`, full?'danger':'success')}
+        </div>
+        <div style="font-size:12px;color:var(--text-faint);margin-bottom:12px;">${room.type} · Floor ${room.floor} · ${fmt(room.rent)}/bed/mo</div>
+        <div style="display:grid;grid-template-columns:repeat(${Math.min(room.beds.length,4)},1fr);gap:8px;">
+          ${room.beds.map(bed=>{ const m=bedStatusMeta(bed.status); return `
+            <div class="bed-chip ${m.cls}" onclick="openBedDetail('${room.id}','${bed.id}')">
+              <div style="font-size:14px;">${bed.label}</div><div style="font-size:9px;">${m.label}</div>
+            </div>`;}).join('')}
+        </div>
+      </div>`;
+    }).join('')}
+  </div>
+  <style>@media(min-width:760px){.room-grid{grid-template-columns:repeat(2,1fr) !important;}}@media(min-width:1200px){.room-grid{grid-template-columns:repeat(3,1fr) !important;}}</style>
+  `;
+}
+function openBedDetail(roomId, bedId){
+  const room = DB.rooms.find(r=>r.id===roomId); const bed = room.beds.find(b=>b.id===bedId);
+  const meta = bedStatusMeta(bed.status);
+  if(bed.status==='occupied'){
+    const t = DB.tenants.find(x=>x.id===bed.tenantId);
+    const pm = paymentStatusMeta(t.paymentStatus);
+    openModal(`
+      <div class="modal-head"><h3 style="margin:0;font-size:16px;">Room ${room.number} · Bed ${bed.label}</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+      <div class="modal-body">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+          <div class="avatar" style="width:46px;height:46px;font-size:15px;">${t.photo}</div>
+          <div><div style="font-weight:700;">${t.name}</div><div style="font-size:12.5px;color:var(--text-muted);">${t.phone}</div></div>
+        </div>
+        <div class="kv"><span class="k">Check-in date</span><span class="v">${fmtDate(t.checkIn)}</span></div>
+        <div class="kv"><span class="k">Monthly rent</span><span class="v">${fmt(t.monthlyRent)}</span></div>
+        <div class="kv"><span class="k">Deposit</span><span class="v">${fmt(t.deposit)}</span></div>
+        <div class="kv"><span class="k">Payment status</span><span class="v">${badge(pm.label,pm.type,pm.icon)}</span></div>
+        <div style="display:flex;gap:8px;margin-top:16px;">
+          <button class="btn btn-outline btn-block" onclick="closeModal();go('tenant-detail',{id:'${t.id}'})">View Profile</button>
+          <button class="btn btn-primary btn-block" onclick="closeModal();go('collect-payment',{tenantId:'${t.id}'})">Collect Fee</button>
+        </div>
+      </div>`);
+  } else {
+    openModal(`
+      <div class="modal-head"><h3 style="margin:0;font-size:16px;">Room ${room.number} · Bed ${bed.label}</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+      <div class="modal-body" style="text-align:center;padding-top:8px;">
+        <div style="font-size:30px;">${meta.dot}</div>
+        <h4 style="margin:8px 0 4px;">${meta.label}</h4>
+        <p style="color:var(--text-muted);font-size:13px;margin:0 0 16px;">${bed.status==='available'?'This bed is ready for a new tenant.':bed.status==='reserved'?'This bed is reserved for an incoming tenant.':'This bed is under maintenance and unavailable.'}</p>
+        ${bed.status==='available'?`<button class="btn btn-primary btn-block" onclick="closeModal();go('tenant-register',{roomId:'${room.id}',bedId:'${bed.id}'})">Allocate Tenant</button>`:''}
+        ${bed.status==='maintenance'?`<button class="btn btn-outline btn-block" onclick="setBedStatus('${room.id}','${bed.id}','available');closeModal();">Mark as Available</button>`:''}
+      </div>`);
+  }
+}
+function setBedStatus(roomId, bedId, status){
+  const room = DB.rooms.find(r=>r.id===roomId); const bed = room.beds.find(b=>b.id===bedId);
+  bed.status = status; if(status==='available'){ bed.tenantId=null; }
+  toast('Bed status updated'); render();
+}
+
+/* ================= TENANTS ================= */
+function renderTenants(){
+  const role = STATE.user.role;
+  const scopedProps = role==='owner' ? DB.properties.map(p=>p.id) : [STATE.user.propertyId];
+  let list = DB.tenants.filter(t=> scopedProps.includes(t.propertyId));
+  const q = STATE.filters.tenantsQ.toLowerCase();
+  if(q) list = list.filter(t=>t.name.toLowerCase().includes(q)||t.roomNumber.includes(q));
+  if(STATE.filters.tenantsStatus!=='all') list = list.filter(t=>t.paymentStatus===STATE.filters.tenantsStatus);
+
+  return `
+  ${pageHeader('Tenants', `${list.length} tenant${list.length!==1?'s':''}`, (role==='owner'||role==='manager')?`<button class="btn btn-primary btn-sm" onclick="go('tenant-register')">+ Add Tenant</button>`:'')}
+  <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+    <input placeholder="Search by name or room…" value="${esc(STATE.filters.tenantsQ)}" oninput="STATE.filters.tenantsQ=this.value;quickRerenderList('tenants-list')"
+      style="flex:1;min-width:200px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13.5px;">
+    <select onchange="STATE.filters.tenantsStatus=this.value;render()" style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13.5px;">
+      <option value="all" ${STATE.filters.tenantsStatus==='all'?'selected':''}>All statuses</option>
+      <option value="paid" ${STATE.filters.tenantsStatus==='paid'?'selected':''}>Paid</option>
+      <option value="partial" ${STATE.filters.tenantsStatus==='partial'?'selected':''}>Partially Paid</option>
+      <option value="pending" ${STATE.filters.tenantsStatus==='pending'?'selected':''}>Pending</option>
+      <option value="overdue" ${STATE.filters.tenantsStatus==='overdue'?'selected':''}>Overdue</option>
+    </select>
+  </div>
+
+  <div id="tenants-list">${renderTenantsList(list)}</div>
+  `;
+}
+function renderTenantsList(list){
+  if(!list.length) return emptyState('👥','No tenants found','Try adjusting filters or add a new tenant.');
+  return `
+  <div class="mobile-only" style="display:flex;flex-direction:column;gap:10px;">
+    ${list.map(t=>{const pm=paymentStatusMeta(t.paymentStatus); return `
+      <div class="card" style="padding:14px;">
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div class="avatar">${t.photo}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:14px;">${t.name}</div>
+            <div style="font-size:12px;color:var(--text-faint);">Room ${t.roomNumber} • Bed ${t.bedLabel} · ${fmt(t.monthlyRent)}/mo</div>
+          </div>
+          ${badge(pm.label,pm.type,pm.icon)}
+        </div>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button class="btn btn-sm btn-outline btn-block" onclick="go('tenant-detail',{id:'${t.id}'})">View</button>
+          <button class="btn btn-sm btn-primary btn-block" onclick="go('collect-payment',{tenantId:'${t.id}'})">Collect Fee</button>
+        </div>
+      </div>`;}).join('')}
+  </div>
+  <div class="table-wrap desktop-only">
+    <table>
+      <thead><tr><th>Tenant</th><th>Property / Room</th><th>Rent</th><th>Status</th><th>Pending</th><th></th></tr></thead>
+      <tbody>
+        ${list.map(t=>{const pm=paymentStatusMeta(t.paymentStatus); return `
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:9px;"><div class="avatar" style="width:30px;height:30px;font-size:11px;">${t.photo}</div>${t.name}</div></td>
+            <td>${t.propertyName}<br><span style="color:var(--text-faint);font-size:12px;">Room ${t.roomNumber} · Bed ${t.bedLabel}</span></td>
+            <td>${fmt(t.monthlyRent)}</td>
+            <td>${badge(pm.label,pm.type,pm.icon)}</td>
+            <td>${t.pending>0?fmt(t.pending):'—'}</td>
+            <td style="text-align:right;white-space:nowrap;">
+              <button class="btn btn-sm btn-outline" onclick="go('tenant-detail',{id:'${t.id}'})">View</button>
+              <button class="btn btn-sm btn-primary" onclick="go('collect-payment',{tenantId:'${t.id}'})">Collect</button>
+            </td>
+          </tr>`;}).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+function quickRerenderList(id){
+  // used for search-as-you-type without full page rerender losing focus
+  const role = STATE.user.role;
+  const scopedProps = role==='owner' ? DB.properties.map(p=>p.id) : [STATE.user.propertyId];
+  let list = DB.tenants.filter(t=> scopedProps.includes(t.propertyId));
+  const q = STATE.filters.tenantsQ.toLowerCase();
+  if(q) list = list.filter(t=>t.name.toLowerCase().includes(q)||t.roomNumber.includes(q));
+  if(STATE.filters.tenantsStatus!=='all') list = list.filter(t=>t.paymentStatus===STATE.filters.tenantsStatus);
+  document.getElementById(id).innerHTML = renderTenantsList(list);
+}
+
+/* ---- Tenant detail ---- */
+function renderTenantDetail(){
+  const t = DB.tenants.find(x=>x.id===STATE.params.id);
+  if(!t) return emptyState('👤','Tenant not found','This tenant may have been removed.');
+  const tab = STATE.params.tab || 'personal';
+  const pm = paymentStatusMeta(t.paymentStatus);
+  const history = DB.payments.filter(p=>p.tenantId===t.id);
+  return `
+  <button class="btn btn-ghost btn-sm" style="margin-bottom:14px;" onclick="go('tenants')">← Back to Tenants</button>
+  <div class="card" style="padding:20px;margin-bottom:18px;">
+    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;">
+      <div class="avatar" style="width:58px;height:58px;font-size:19px;">${t.photo}</div>
+      <div style="flex:1;min-width:200px;">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><h2 style="margin:0;font-size:19px;">${t.name}</h2>${badge(t.status,'success')}</div>
+        <div style="font-size:13px;color:var(--text-muted);margin-top:3px;">${t.propertyName} · Room ${t.roomNumber} · Bed ${t.bedLabel}</div>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-outline" onclick="toast('Edit form (demo)','info')">Edit</button>
+        <button class="btn btn-sm btn-primary" onclick="go('collect-payment',{tenantId:'${t.id}'})">Collect Fee</button>
+        <button class="btn btn-sm btn-danger" onclick="confirmCheckout('${t.id}')">Check-out</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="tab-row">
+    ${[['personal','Personal'],['hostel','Hostel Info'],['financial','Financial'],['documents','Documents']].map(([k,l])=>`
+      <div class="tab-btn ${tab===k?'active':''}" onclick="go('tenant-detail',{id:'${t.id}',tab:'${k}'})">${l}</div>`).join('')}
+  </div>
+
+  ${tab==='personal'? `
+    <div class="card" style="padding:18px;">
+      <div class="kv"><span class="k">Mobile</span><span class="v">${t.phone}</span></div>
+      <div class="kv"><span class="k">Email</span><span class="v">${t.email}</span></div>
+      <div class="kv"><span class="k">Date of birth</span><span class="v">${fmtDate(t.dob)}</span></div>
+      <div class="kv"><span class="k">Gender</span><span class="v">${t.gender}</span></div>
+      <div class="kv"><span class="k">Address</span><span class="v" style="max-width:220px;text-align:right;">${t.address}</span></div>
+      <div class="kv"><span class="k">Emergency contact</span><span class="v">${t.emergency.name} (${t.emergency.relation})</span></div>
+      <div class="kv"><span class="k">Emergency phone</span><span class="v">${t.emergency.phone}</span></div>
+    </div>` : ''}
+
+  ${tab==='hostel'? `
+    <div class="card" style="padding:18px;">
+      <div class="kv"><span class="k">Property</span><span class="v">${t.propertyName}</span></div>
+      <div class="kv"><span class="k">Room / Bed</span><span class="v">${t.roomNumber} / ${t.bedLabel}</span></div>
+      <div class="kv"><span class="k">Check-in date</span><span class="v">${fmtDate(t.checkIn)}</span></div>
+      <div class="kv"><span class="k">Expected checkout</span><span class="v">${fmtDate(t.expectedCheckout)}</span></div>
+      <div class="kv"><span class="k">Status</span><span class="v">${badge(t.status,'success')}</span></div>
+      <button class="btn btn-outline btn-sm" style="margin-top:14px;" onclick="toast('Room transfer form (demo)','info')">Transfer Room</button>
+    </div>` : ''}
+
+  ${tab==='financial'? `
+    <div class="card" style="padding:18px;margin-bottom:14px;">
+      <div class="kv"><span class="k">Monthly rent</span><span class="v">${fmt(t.monthlyRent)}</span></div>
+      <div class="kv"><span class="k">Security deposit</span><span class="v">${fmt(t.deposit)}</span></div>
+      <div class="kv"><span class="k">Due date</span><span class="v">${t.dueDate}th of every month</span></div>
+      <div class="kv"><span class="k">Current balance / pending</span><span class="v" style="color:${t.pending>0?'var(--danger)':'inherit'}">${fmt(t.pending)}</span></div>
+      <div class="kv"><span class="k">Payment status</span><span class="v">${badge(pm.label,pm.type,pm.icon)}</span></div>
+    </div>
+    <h4 style="font-size:14px;margin:0 0 10px;">Payment History</h4>
+    <div class="table-wrap">
+      <table><thead><tr><th>Receipt</th><th>Date</th><th>Amount</th><th>Method</th><th></th></tr></thead>
+      <tbody>${history.length? history.map(p=>`<tr><td>${p.receiptNo}</td><td>${fmtDate(p.date)}</td><td>${fmt(p.paidAmount)}</td><td>${p.method}</td>
+        <td style="text-align:right;"><button class="btn btn-sm btn-outline" onclick="openReceipt('${p.id}')">View</button></td></tr>`).join('') : `<tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:24px;">No payments yet</td></tr>`}</tbody></table>
+    </div>` : ''}
+
+  ${tab==='documents'? `
+    <div class="card" style="padding:18px;">
+      ${t.documents.map(d=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border);">
+          <div style="font-size:20px;">📄</div>
+          <div style="flex:1;"><div style="font-weight:600;font-size:13.5px;">${d.name}</div><div style="font-size:11.5px;color:var(--text-faint);">${d.type}</div></div>
+          <button class="btn btn-sm btn-outline" onclick="toast('Preview unavailable in demo','info')">View</button>
+        </div>`).join('')}
+    </div>` : ''}
+  `;
+}
+function confirmCheckout(tenantId){
+  const t = DB.tenants.find(x=>x.id===tenantId);
+  const refund = Math.max(0, t.deposit - t.pending);
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Confirm Check-out</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="kv"><span class="k">Tenant</span><span class="v">${t.name}</span></div>
+      <div class="kv"><span class="k">Room / Bed</span><span class="v">${t.roomNumber} / ${t.bedLabel}</span></div>
+      <div class="kv"><span class="k">Deposit held</span><span class="v">${fmt(t.deposit)}</span></div>
+      <div class="kv"><span class="k">Pending dues (deduction)</span><span class="v" style="color:var(--danger)">-${fmt(t.pending)}</span></div>
+      <div class="kv" style="font-size:15px;"><span class="k">Refund amount</span><span class="v" style="color:var(--primary)">${fmt(refund)}</span></div>
+      <p style="font-size:13px;color:var(--text-muted);margin:14px 0 0;">Are you sure you want to check out this tenant? The bed will become available immediately.</p>
+      <div style="display:flex;gap:10px;margin-top:18px;">
+        <button class="btn btn-outline btn-block" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-danger btn-block" onclick="doCheckout('${t.id}')">Confirm Checkout</button>
+      </div>
+    </div>`);
+}
+function doCheckout(tenantId){
+  const t = DB.tenants.find(x=>x.id===tenantId);
+  const room = DB.rooms.find(r=>r.id===t.roomId); const bed = room.beds.find(b=>b.id===t.bedId);
+  bed.status='available'; bed.tenantId=null; t.status='Checked Out';
+  closeModal(); toast(`${t.name} checked out. Final settlement recorded.`); go('tenants');
+}
+
+/* ---- Tenant registration wizard ---- */
+let REG = {};
+function renderTenantRegister(){
+  REG = { step:1, propertyId: DB.properties[0].id, roomId: STATE.params.roomId||'', bedId: STATE.params.bedId||'',
+    name:'', phone:'', email:'', dob:'', gender:'Male', address:'', emName:'', emPhone:'', emRelation:'Father',
+    rent:0, deposit:0, docs:[] };
+  if(STATE.params.roomId){ const room = DB.rooms.find(r=>r.id===STATE.params.roomId); if(room){ REG.propertyId=room.propertyId; REG.rent=room.rent; REG.deposit=room.rent*2; REG.step=4; } }
+  return `<div id="reg-wizard">${renderRegStep()}</div>`;
+}
+const REG_STEPS = ['Personal','Emergency','Select PG','Select Room','Select Bed','Fee Details','Documents','Review'];
+function regStepper(){
+  return `<div style="display:flex;align-items:center;gap:4px;margin-bottom:22px;overflow-x:auto;padding-bottom:4px;" class="scrollbar-none">
+    ${REG_STEPS.map((s,i)=>{const n=i+1; const cls= n<REG.step?'done':n===REG.step?'now':'';
+      return `<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
+        <div class="step-dot ${cls}">${n<REG.step?'✓':n}</div>
+        <span style="font-size:11.5px;color:${n===REG.step?'var(--text)':'var(--text-faint)'};font-weight:${n===REG.step?'700':'500'};white-space:nowrap;">${s}</span>
+        ${i<REG_STEPS.length-1?`<div style="width:16px;height:1px;background:var(--border);"></div>`:''}
+      </div>`;}).join('')}
+  </div>`;
+}
+function regNav(canNext=true){
+  return `<div style="display:flex;gap:10px;margin-top:20px;">
+    ${REG.step>1?`<button class="btn btn-outline btn-block" onclick="regBack()">Back</button>`:`<button class="btn btn-outline btn-block" onclick="go('tenants')">Cancel</button>`}
+    ${REG.step<8?`<button class="btn btn-primary btn-block" onclick="regNext()">Continue</button>`:`<button class="btn btn-primary btn-block" onclick="regSubmit()">Confirm &amp; Register</button>`}
+  </div>`;
+}
+function regRerender(){ document.getElementById('reg-wizard').innerHTML = renderRegStep(); }
+function regBack(){ REG.step--; regRerender(); }
+function regNext(){
+  if(REG.step===1){ REG.name=document.getElementById('r-name').value; REG.phone=document.getElementById('r-phone').value; REG.email=document.getElementById('r-email').value; REG.dob=document.getElementById('r-dob').value; REG.gender=document.getElementById('r-gender').value; REG.address=document.getElementById('r-address').value;
+    if(!REG.name||!REG.phone){ toast('Please enter name and phone number','error'); return; } }
+  if(REG.step===2){ REG.emName=document.getElementById('r-emname').value; REG.emPhone=document.getElementById('r-emphone').value; REG.emRelation=document.getElementById('r-emrel').value;
+    if(!REG.emName||!REG.emPhone){ toast('Please fill emergency contact details','error'); return; } }
+  if(REG.step===3){ if(!REG.propertyId){ toast('Please select a PG','error'); return; } }
+  if(REG.step===4){ if(!REG.roomId){ toast('Please select a room','error'); return; } }
+  if(REG.step===5){ if(!REG.bedId){ toast('Please select a bed','error'); return; } }
+  if(REG.step===6){ REG.rent=Number(document.getElementById('r-rent').value); REG.deposit=Number(document.getElementById('r-deposit').value); }
+  REG.step++; regRerender();
+}
+function regSubmit(){
+  const room = DB.rooms.find(r=>r.id===REG.roomId); const bed = room.beds.find(b=>b.id===REG.bedId);
+  const prop = DB.properties.find(p=>p.id===REG.propertyId);
+  const tenant = {
+    id: uid('TEN'), name:REG.name||fullName(), photo: initials(REG.name||'New Tenant'), phone:REG.phone, email:REG.email||'',
+    dob:REG.dob||'2000-01-01', gender:REG.gender, address:REG.address||'',
+    emergency:{name:REG.emName, phone:REG.emPhone, relation:REG.emRelation},
+    propertyId:prop.id, propertyName:prop.name, roomId:room.id, roomNumber:room.number, bedId:bed.id, bedLabel:bed.label,
+    checkIn:new Date().toISOString(), expectedCheckout: daysFromNow(180), status:'Active',
+    monthlyRent:REG.rent||room.rent, deposit:REG.deposit||room.rent*2, dueDate:5, pending:0, paymentStatus:'paid',
+    lastPaymentDate:new Date().toISOString(), documents:[{name:'ID Proof (uploaded)',type:'ID Proof'},{name:'Rental Agreement',type:'Agreement'}]
+  };
+  DB.tenants.push(tenant); bed.status='occupied'; bed.tenantId=tenant.id;
+  DB.payments.unshift({ id:uid('PAY'), receiptNo:`RCPT-2026-${randInt(20000,29999)}`, tenantId:tenant.id, tenantName:tenant.name,
+    propertyId:prop.id, propertyName:prop.name, roomNumber:room.number, bedLabel:bed.label, feeType:'Security Deposit',
+    amount:tenant.deposit, date:new Date().toISOString(), method:'Cash', txnId:'TXN'+randInt(100000,999999), status:'Paid',
+    previousBalance:0, paidAmount:tenant.deposit, remainingBalance:0, notes:'Initial deposit at check-in' });
+  toast('Tenant registered and bed allocated successfully!');
+  go('tenant-detail',{id:tenant.id});
+}
+function renderRegStep(){
+  const rooms = DB.rooms.filter(r=>r.propertyId===REG.propertyId);
+  const room = DB.rooms.find(r=>r.id===REG.roomId);
+  let body='';
+  if(REG.step===1) body=`
+    <div class="field"><label>Full name</label><input id="r-name" value="${REG.name}" placeholder="e.g. Priya Sharma"></div>
+    <div class="field"><label>Mobile number</label><input id="r-phone" value="${REG.phone}" placeholder="+91 90000 00000"></div>
+    <div class="field"><label>Email</label><input id="r-email" value="${REG.email}" placeholder="name@email.com"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field"><label>Date of birth</label><input id="r-dob" type="date"></div>
+      <div class="field"><label>Gender</label><select id="r-gender"><option>Male</option><option>Female</option><option>Other</option></select></div>
+    </div>
+    <div class="field"><label>Address</label><textarea id="r-address" rows="2" placeholder="Permanent address"></textarea></div>`;
+  else if(REG.step===2) body=`
+    <div class="field"><label>Contact name</label><input id="r-emname" placeholder="e.g. Suresh Sharma"></div>
+    <div class="field"><label>Contact phone</label><input id="r-emphone" placeholder="+91 90000 00000"></div>
+    <div class="field"><label>Relation</label><select id="r-emrel"><option>Father</option><option>Mother</option><option>Brother</option><option>Sister</option><option>Guardian</option></select></div>`;
+  else if(REG.step===3) body=`
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${DB.properties.map(p=>{const occ=occupancyFor(p.id); return `
+        <div class="card" style="padding:14px;border-color:${REG.propertyId===p.id?'var(--primary)':'var(--border)'};cursor:pointer;" onclick="REG.propertyId='${p.id}';REG.roomId='';REG.bedId='';regRerender()">
+          <div style="display:flex;justify-content:space-between;align-items:center;"><strong>${p.name}</strong>${REG.propertyId===p.id?'✅':''}</div>
+          <div style="font-size:12.5px;color:var(--text-faint);">${p.location} · ${occ.avail} beds available</div>
+        </div>`;}).join('')}
+    </div>`;
+  else if(REG.step===4) body=`
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      ${rooms.map(r=>{const av=r.beds.filter(b=>b.status==='available').length; const disabled=av===0; return `
+        <div class="card" style="padding:12px;text-align:center;opacity:${disabled?0.45:1};cursor:${disabled?'not-allowed':'pointer'};border-color:${REG.roomId===r.id?'var(--primary)':'var(--border)'};"
+          onclick="${disabled?'':`REG.roomId='${r.id}';REG.bedId='';regRerender()`}">
+          <div style="font-weight:700;">Room ${r.number}</div>
+          <div style="font-size:11.5px;color:var(--text-faint);">${r.type}</div>
+          <div style="font-size:12px;margin-top:4px;">${av} available</div>
+        </div>`;}).join('')}
+    </div>`;
+  else if(REG.step===5) body= room ? `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      ${room.beds.map(b=>{const m=bedStatusMeta(b.status); const disabled=b.status!=='available';
+        return `<div class="bed-chip ${m.cls}" style="opacity:${disabled&&b.id!==REG.bedId?0.4:1};outline:${REG.bedId===b.id?'2px solid var(--primary)':'none'};cursor:${disabled?'not-allowed':'pointer'};" onclick="${disabled?'':`REG.bedId='${b.id}';regRerender()`}">
+          <div>${b.label}</div><div style="font-size:9px;">${m.label}</div></div>`;}).join('')}
+    </div>` : emptyState('🛏️','Select a room first','Go back and choose a room.');
+  else if(REG.step===6) body=`
+    <div class="field"><label>Monthly rent (₹)</label><input id="r-rent" type="number" value="${room?room.rent:REG.rent}"></div>
+    <div class="field"><label>Security deposit (₹)</label><input id="r-deposit" type="number" value="${room?room.rent*2:REG.deposit}"></div>
+    <div class="field"><label>Due date</label><select id="r-duedate"><option>5th of every month</option><option>1st of every month</option><option>10th of every month</option></select></div>`;
+  else if(REG.step===7) body=`
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      ${['ID Proof (Aadhaar/PAN/Passport)','Address Proof','Rental Agreement','Photograph'].map(d=>`
+        <div class="card" style="padding:14px;display:flex;align-items:center;justify-content:space-between;">
+          <span style="font-size:13.5px;">${d}</span>
+          <button class="btn btn-sm btn-outline" onclick="this.innerText='Uploaded ✓';this.disabled=true;this.classList.add('btn-ghost')">Upload</button>
+        </div>`).join('')}
+      <p style="font-size:12px;color:var(--text-faint);">Document upload is simulated in this demo.</p>
+    </div>`;
+  else if(REG.step===8){
+    const prop = DB.properties.find(p=>p.id===REG.propertyId);
+    body=`
+    <div class="card" style="padding:16px;">
+      <h4 style="margin:0 0 10px;font-size:14px;">Review Details</h4>
+      <div class="kv"><span class="k">Name</span><span class="v">${REG.name||'—'}</span></div>
+      <div class="kv"><span class="k">Phone</span><span class="v">${REG.phone||'—'}</span></div>
+      <div class="kv"><span class="k">Emergency contact</span><span class="v">${REG.emName} (${REG.emRelation})</span></div>
+      <div class="kv"><span class="k">Property</span><span class="v">${prop?.name}</span></div>
+      <div class="kv"><span class="k">Room / Bed</span><span class="v">${room?.number} / ${room?.beds.find(b=>b.id===REG.bedId)?.label}</span></div>
+      <div class="kv"><span class="k">Monthly rent</span><span class="v">${fmt(REG.rent||room?.rent||0)}</span></div>
+      <div class="kv"><span class="k">Deposit</span><span class="v">${fmt(REG.deposit||(room?room.rent*2:0))}</span></div>
+    </div>
+    <p style="font-size:12.5px;color:var(--text-muted);margin-top:12px;">Confirming will create the tenant account, allocate the bed, record the deposit, and generate the rent schedule.</p>`;
+  }
+  return `${pageHeader('Register New Tenant','Multi-step check-in workflow')}
+    ${regStepper()}
+    <div class="card" style="padding:20px;">${body}${regNav()}</div>`;
+}
+
+/* ================= FEES ================= */
+function renderFees(){
+  const role = STATE.user.role;
+  const scopedProps = role==='owner' ? DB.properties.map(p=>p.id) : role==='manager'?[STATE.user.propertyId]:DB.properties.map(p=>p.id);
+  const tenants = DB.tenants.filter(t=>scopedProps.includes(t.propertyId));
+  const totalCollected = DB.payments.filter(p=>scopedProps.includes(p.propertyId)).reduce((s,p)=>s+p.paidAmount,0);
+  const today = new Date().toDateString();
+  const todayCol = DB.payments.filter(p=>new Date(p.date).toDateString()===today && scopedProps.includes(p.propertyId)).reduce((s,p)=>s+p.paidAmount,0);
+  const monthCol = DB.payments.filter(p=>{const d=new Date(p.date);const n=new Date();return d.getMonth()===n.getMonth() && scopedProps.includes(p.propertyId);}).reduce((s,p)=>s+p.paidAmount,0);
+  const pending = tenants.reduce((s,t)=>s+(t.paymentStatus!=='overdue'?t.pending:0),0);
+  const overdue = tenants.filter(t=>t.paymentStatus==='overdue').reduce((s,t)=>s+t.pending,0);
+
+  return `
+  ${pageHeader('Fee Management', 'Track collections, dues and payment status across tenants.')}
+  <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;" class="kpi-grid2">
+    <div class="stat"><div class="lbl">Total Collected</div><div class="val">${fmt(totalCollected)}</div></div>
+    <div class="stat"><div class="lbl">Today's Collection</div><div class="val">${fmt(todayCol)}</div></div>
+    <div class="stat"><div class="lbl">This Month</div><div class="val">${fmt(monthCol)}</div></div>
+    <div class="stat" style="border-left-color:var(--amber);"><div class="lbl">Pending</div><div class="val">${fmt(pending)}</div></div>
+    <div class="stat" style="border-left-color:var(--danger);"><div class="lbl">Overdue</div><div class="val">${fmt(overdue)}</div></div>
+  </div>
+  <style>@media(min-width:640px){.kpi-grid2{grid-template-columns:repeat(3,1fr) !important;}}@media(min-width:1024px){.kpi-grid2{grid-template-columns:repeat(5,1fr) !important;}}</style>
+
+  <div style="display:flex;gap:10px;margin-bottom:16px;">
+    <button class="btn btn-primary btn-sm" onclick="openCollectPaymentPicker()">💰 Collect Payment</button>
+    <button class="btn btn-outline btn-sm" onclick="go('payment-history')">🧾 Payment History</button>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Tenant</th><th>Room</th><th>Monthly Rent</th><th>Last Payment</th><th>Status</th><th>Pending</th><th></th></tr></thead>
+      <tbody>
+        ${tenants.map(t=>{const pm=paymentStatusMeta(t.paymentStatus); return `
+          <tr>
+            <td><div style="display:flex;align-items:center;gap:9px;"><div class="avatar" style="width:28px;height:28px;font-size:11px;">${t.photo}</div>${t.name}</div></td>
+            <td>${t.roomNumber}</td><td>${fmt(t.monthlyRent)}</td><td>${fmtDate(t.lastPaymentDate)}</td>
+            <td>${badge(pm.label,pm.type,pm.icon)}</td><td>${t.pending>0?fmt(t.pending):'—'}</td>
+            <td style="text-align:right;"><button class="btn btn-sm btn-primary" onclick="go('collect-payment',{tenantId:'${t.id}'})">Collect</button></td>
+          </tr>`;}).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ---- Collect payment ---- */
+function renderCollectPayment(){
+  const t = DB.tenants.find(x=>x.id===STATE.params.tenantId);
+  if(!t) return emptyState('💰','Select a tenant', 'Choose a tenant to collect payment from.');
+  STATE.cart = { amount: t.pending>0? t.pending : t.monthlyRent, method:'Cash', feeType:'Monthly Rent', txnId:'', notes:'', date:new Date().toISOString().slice(0,10) };
+  return `<div id="pay-form">${renderPayForm(t)}</div>`;
+}
+function renderPayForm(t){
+  const c = STATE.cart;
+  return `
+  <button class="btn btn-ghost btn-sm" style="margin-bottom:14px;" onclick="go('fees')">← Back</button>
+  ${pageHeader('Collect Payment', `${t.name} · Room ${t.roomNumber}`)}
+  <div class="card" style="padding:18px;margin-bottom:16px;">
+    <div class="kv"><span class="k">Tenant</span><span class="v">${t.name}</span></div>
+    <div class="kv"><span class="k">Property / Room / Bed</span><span class="v">${t.propertyName} / ${t.roomNumber} / ${t.bedLabel}</span></div>
+    <div class="kv"><span class="k">Monthly rent</span><span class="v">${fmt(t.monthlyRent)}</span></div>
+    <div class="kv"><span class="k">Current pending</span><span class="v" style="color:${t.pending>0?'var(--danger)':'inherit'}">${fmt(t.pending)}</span></div>
+  </div>
+
+  <div class="card" style="padding:18px;">
+    <div class="field"><label>Fee type</label>
+      <select id="pf-feetype" onchange="STATE.cart.feeType=this.value">
+        ${['Monthly Rent','Late Fee','Advance Payment','Security Deposit Top-up','Other'].map(f=>`<option ${c.feeType===f?'selected':''}>${f}</option>`).join('')}
+      </select>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="field"><label>Amount (₹)</label><input id="pf-amount" type="number" value="${c.amount}" oninput="STATE.cart.amount=Number(this.value)"></div>
+      <div class="field"><label>Payment date</label><input id="pf-date" type="date" value="${c.date}"></div>
+    </div>
+    <div class="field"><label>Payment method</label>
+      <div class="chip-row">
+        ${['Cash','UPI','Bank Transfer','Online Payment','Other'].map(m=>`<div class="filter-chip ${c.method===m?'active':''}" onclick="STATE.cart.method='${m}';document.getElementById('pay-form').innerHTML=renderPayForm(DB.tenants.find(x=>x.id==='${t.id}'))">${m}</div>`).join('')}
+      </div>
+    </div>
+    <div class="field"><label>Transaction ID (optional)</label><input id="pf-txn" placeholder="e.g. UPI ref / bank ref" value="${c.txnId}"></div>
+    <div class="field"><label>Notes</label><textarea id="pf-notes" rows="2" placeholder="Optional note">${c.notes}</textarea></div>
+
+    <div style="display:flex;gap:10px;margin-top:8px;">
+      <div style="flex:1;"><button class="btn btn-outline btn-block btn-sm" onclick="STATE.cart.amount=${t.pending>0?t.pending:t.monthlyRent};document.getElementById('pf-amount').value=STATE.cart.amount">Full Payment</button></div>
+      <div style="flex:1;"><button class="btn btn-outline btn-block btn-sm" onclick="STATE.cart.amount=Math.round((${t.pending>0?t.pending:t.monthlyRent})/2);document.getElementById('pf-amount').value=STATE.cart.amount">Partial (50%)</button></div>
+    </div>
+
+    <button class="btn btn-primary btn-block" style="margin-top:18px;" onclick="submitPayment('${t.id}')">Record Payment</button>
+  </div>`;
+}
+function submitPayment(tenantId){
+  const t = DB.tenants.find(x=>x.id===tenantId);
+  const amount = Number(document.getElementById('pf-amount').value)||0;
+  const feeType = document.getElementById('pf-feetype').value;
+  const date = document.getElementById('pf-date').value || new Date().toISOString().slice(0,10);
+  const txnId = document.getElementById('pf-txn').value || ('TXN'+randInt(100000,999999));
+  const notes = document.getElementById('pf-notes').value;
+  const method = STATE.cart.method;
+  if(amount<=0){ toast('Enter a valid amount','error'); return; }
+
+  const prevBalance = t.pending;
+  const remaining = Math.max(0, prevBalance - amount) + (amount < prevBalance ? 0:0);
+  const newPending = Math.max(0, prevBalance - amount);
+  t.pending = newPending;
+  t.paymentStatus = newPending===0 ? 'paid' : (newPending < t.monthlyRent ? 'partial' : 'overdue');
+  t.lastPaymentDate = new Date(date).toISOString();
+
+  const receiptNo = `RCPT-2026-${randInt(30000,39999)}`;
+  const payment = { id: uid('PAY'), receiptNo, tenantId:t.id, tenantName:t.name, propertyId:t.propertyId, propertyName:t.propertyName,
+    roomNumber:t.roomNumber, bedLabel:t.bedLabel, feeType, amount, date:new Date(date).toISOString(), method, txnId,
+    status: newPending>0?'Partial':'Paid', previousBalance:prevBalance, paidAmount:amount, remainingBalance:newPending, notes };
+  DB.payments.unshift(payment);
+
+  showPaymentSuccess(payment);
+}
+function showPaymentSuccess(payment){
+  document.getElementById('content-root').innerHTML = `
+  <div style="max-width:420px;margin:30px auto;text-align:center;">
+    <div style="width:76px;height:76px;border-radius:50%;background:var(--primary-light);display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 18px;color:var(--primary-dark);">✓</div>
+    <h2 style="font-family:var(--font-head);margin:0 0 4px;">Payment Successful</h2>
+    <div style="font-size:32px;font-weight:800;font-family:var(--font-head);margin:8px 0;">${fmt(payment.paidAmount)}</div>
+    <div style="color:var(--text-faint);font-family:var(--font-mono);font-size:12.5px;margin-bottom:22px;">Payment ID: ${payment.receiptNo}</div>
+    <div class="card" style="padding:16px;text-align:left;margin-bottom:20px;">
+      <div class="kv"><span class="k">Tenant</span><span class="v">${payment.tenantName}</span></div>
+      <div class="kv"><span class="k">Method</span><span class="v">${payment.method}</span></div>
+      <div class="kv"><span class="k">Fee type</span><span class="v">${payment.feeType}</span></div>
+      <div class="kv"><span class="k">Remaining balance</span><span class="v" style="color:${payment.remainingBalance>0?'var(--danger)':'inherit'}">${fmt(payment.remainingBalance)}</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn btn-primary" onclick="openReceipt('${payment.id}')">Generate Receipt</button>
+      <button class="btn btn-outline" onclick="printReceipt('${payment.id}')">🖨️ Print</button>
+      <button class="btn btn-outline" onclick="downloadReceipt('${payment.id}')">📄 Download PDF</button>
+      <button class="btn btn-outline" onclick="toast('Share link copied (demo)','info')">📤 Share</button>
+    </div>
+    <button class="btn btn-ghost btn-block" style="margin-top:14px;" onclick="go('fees')">Done</button>
+  </div>`;
+  toast('Payment recorded successfully');
+}
+
+/* ---- Receipt ---- */
+function openReceipt(paymentId){ go('receipt',{paymentId}); }
+function receiptHtml(p){
+  const t = DB.tenants.find(x=>x.id===p.tenantId);
+  return `
+  <div class="receipt-paper" style="max-width:520px;margin:0 auto;">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #222;padding-bottom:14px;margin-bottom:14px;">
+      <div style="display:flex;gap:10px;align-items:center;">
+        <div style="width:38px;height:38px;border-radius:9px;background:#2F6F5E;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-family:${'Sora, sans-serif'};">N</div>
+        <div><div style="font-weight:800;font-size:16px;">${p.propertyName}</div><div style="font-size:11px;color:#666;">Nestly PG Management · ${DB.properties.find(pr=>pr.id===p.propertyId)?.phone||''}</div></div>
+      </div>
+      <div style="text-align:right;">
+        <div style="font-weight:700;font-size:13px;">RECEIPT</div>
+        <div style="font-size:11px;color:#666;font-family:monospace;">${p.receiptNo}</div>
+      </div>
+    </div>
+    <div class="rline"><span>Payment date</span><span>${fmtDate(p.date)}</span></div>
+    <div class="rline"><span>Tenant name</span><span>${p.tenantName}</span></div>
+    <div class="rline"><span>Room / Bed</span><span>${p.roomNumber} / ${p.bedLabel}</span></div>
+    <div class="rline"><span>Fee type</span><span>${p.feeType}</span></div>
+    <div class="rline"><span>Payment method</span><span>${p.method}</span></div>
+    <div class="rline"><span>Transaction ID</span><span>${p.txnId}</span></div>
+    <div class="rline"><span>Previous balance</span><span>${fmt(p.previousBalance)}</span></div>
+    <div class="rline" style="font-weight:800;font-size:15px;"><span>Amount paid</span><span>${fmt(p.paidAmount)}</span></div>
+    <div class="rline"><span>Remaining balance</span><span>${fmt(p.remainingBalance)}</span></div>
+    ${p.notes?`<div class="rline"><span>Notes</span><span>${esc(p.notes)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;margin-top:36px;">
+      <div style="text-align:center;"><div style="width:130px;border-top:1px solid #999;padding-top:6px;font-size:11px;color:#666;">Tenant signature</div></div>
+      <div style="text-align:center;"><div style="width:130px;border-top:1px solid #999;padding-top:6px;font-size:11px;color:#666;">Authorized signatory</div></div>
+    </div>
+    <div style="text-align:center;font-size:10.5px;color:#999;margin-top:22px;">This is a computer-generated receipt from Nestly PG Management System.</div>
+  </div>`;
+}
+function renderReceiptView(){
+  const p = DB.payments.find(x=>x.id===STATE.params.paymentId);
+  if(!p) return emptyState('🧾','Receipt not found','This receipt may not exist.');
+  return `
+  <button class="btn btn-ghost btn-sm" style="margin-bottom:14px;" onclick="go('payment-history')">← Back</button>
+  ${pageHeader('Receipt', 'Print preview — formatted for A4 printing.')}
+  <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+    <button class="btn btn-primary btn-sm" onclick="printReceipt('${p.id}')">🖨️ Print Receipt</button>
+    <button class="btn btn-outline btn-sm" onclick="downloadReceipt('${p.id}')">📄 Download PDF</button>
+    <button class="btn btn-outline btn-sm" onclick="toast('Share link copied (demo)','info')">📤 Share</button>
+  </div>
+  <div class="card" style="padding:24px;background:var(--surface-2);">
+    ${receiptHtml(p)}
+  </div>`;
+}
+function printReceipt(paymentId){
+  const p = DB.payments.find(x=>x.id===paymentId);
+  document.getElementById('print-area').innerHTML = receiptHtml(p);
+  window.print();
+}
+function downloadReceipt(paymentId){
+  printReceipt(paymentId);
+  toast('Use the print dialog to "Save as PDF"','info');
+}
+
+/* ---- Payment history ---- */
+function renderPaymentHistory(){
+  const role = STATE.user.role;
+  let list = [...DB.payments];
+  const q = STATE.filters.paymentsQ.toLowerCase();
+  if(q) list = list.filter(p=>p.tenantName.toLowerCase().includes(q)||p.receiptNo.toLowerCase().includes(q));
+  if(STATE.filters.paymentsMethod!=='all') list = list.filter(p=>p.method===STATE.filters.paymentsMethod);
+  return `
+  ${pageHeader('Payment History', `${list.length} transactions`)}
+  <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+    <input placeholder="Search tenant or receipt no…" value="${esc(STATE.filters.paymentsQ)}" oninput="STATE.filters.paymentsQ=this.value;render()"
+      style="flex:1;min-width:200px;background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13.5px;">
+    <select onchange="STATE.filters.paymentsMethod=this.value;render()" style="background:var(--surface-2);border:1px solid var(--border);border-radius:9px;padding:9px 12px;font-size:13.5px;">
+      <option value="all">All methods</option>
+      ${['Cash','UPI','Bank Transfer','Online Payment','Other'].map(m=>`<option value="${m}" ${STATE.filters.paymentsMethod===m?'selected':''}>${m}</option>`).join('')}
+    </select>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Receipt No.</th><th>Tenant</th><th>Property/Room</th><th>Amount</th><th>Method</th><th>Date</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+        ${list.slice(0,80).map(p=>`
+          <tr>
+            <td style="font-family:var(--font-mono);font-size:12px;">${p.receiptNo}</td>
+            <td>${p.tenantName}</td><td>${p.propertyName}<br><span style="color:var(--text-faint);font-size:11.5px;">Room ${p.roomNumber}</span></td>
+            <td>${fmt(p.paidAmount)}</td><td>${p.method}</td><td>${fmtDate(p.date)}</td>
+            <td>${badge(p.status, p.status==='Paid'?'success':'amber')}</td>
+            <td style="text-align:right;white-space:nowrap;">
+              <button class="btn btn-sm btn-outline" onclick="openReceipt('${p.id}')">View</button>
+              <button class="btn btn-sm btn-ghost" onclick="printReceipt('${p.id}')">Print</button>
+            </td>
+          </tr>`).join('')}
+      </tbody>
+    </table>
+  </div>`;
+}
+
+/* ================= EXPENSES ================= */
+function renderExpenses(){
+  const total = DB.expenses.reduce((s,e)=>s+e.amount,0);
+  const today = new Date().toDateString();
+  const todayTotal = DB.expenses.filter(e=>new Date(e.date).toDateString()===today).reduce((s,e)=>s+e.amount,0);
+  const monthTotal = DB.expenses.filter(e=>new Date(e.date).getMonth()===new Date().getMonth()).reduce((s,e)=>s+e.amount,0);
+  const byCat = {};
+  DB.expenses.forEach(e=>{ byCat[e.category]=(byCat[e.category]||0)+e.amount; });
+  const maxCat = Math.max(...Object.values(byCat));
+  return `
+  ${pageHeader('Expenses', 'Track operating costs across properties.', `<button class="btn btn-primary btn-sm" onclick="openAddExpense()">+ Add Expense</button>`)}
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;">
+    <div class="stat" style="border-left-color:var(--danger);"><div class="lbl">Total Expenses</div><div class="val">${fmt(total)}</div></div>
+    <div class="stat"><div class="lbl">This Month</div><div class="val">${fmt(monthTotal)}</div></div>
+    <div class="stat"><div class="lbl">Today</div><div class="val">${fmt(todayTotal)}</div></div>
+  </div>
+  <div class="card" style="padding:18px;margin-bottom:18px;">
+    <h3 style="margin:0 0 14px;font-size:15px;">Category Breakdown</h3>
+    ${Object.entries(byCat).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+      <div style="margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:4px;"><span>${cat}</span><span style="font-weight:600;">${fmt(amt)}</span></div>
+        <div class="progress-bar"><div style="width:${(amt/maxCat*100).toFixed(0)}%;"></div></div>
+      </div>`).join('')}
+  </div>
+  <div class="table-wrap">
+    <table><thead><tr><th>Category</th><th>Description</th><th>Property</th><th>Amount</th><th>Date</th><th>Paid by</th></tr></thead>
+    <tbody>${DB.expenses.slice(0,40).map(e=>`<tr><td>${badge(e.category,'neutral')}</td><td>${e.description}</td><td>${e.propertyName}</td><td>${fmt(e.amount)}</td><td>${fmtDate(e.date)}</td><td>${e.paidBy}</td></tr>`).join('')}</tbody></table>
+  </div>`;
+}
+function openAddExpense(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Add Expense</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Category</label><select id="ex-cat">${["Electricity","Water","Internet","Maintenance","Cleaning","Salaries","Food/Mess","Repairs","Other"].map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Amount (₹)</label><input id="ex-amt" type="number" placeholder="0"></div>
+      <div class="field"><label>Date</label><input id="ex-date" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+      <div class="field"><label>Description</label><input id="ex-desc" placeholder="Short description"></div>
+      <div class="field"><label>Property</label><select id="ex-prop">${DB.properties.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+      <button class="btn btn-primary btn-block" onclick="submitExpense()">Add Expense</button>
+    </div>`);
+}
+function submitExpense(){
+  const amt = Number(document.getElementById('ex-amt').value)||0;
+  if(amt<=0){ toast('Enter a valid amount','error'); return; }
+  const prop = DB.properties.find(p=>p.id===document.getElementById('ex-prop').value);
+  DB.expenses.unshift({ id:uid('EXP'), propertyId:prop.id, propertyName:prop.name, category:document.getElementById('ex-cat').value,
+    amount:amt, date:document.getElementById('ex-date').value, description:document.getElementById('ex-desc').value||'Expense', paidBy:STATE.user.name });
+  closeModal(); toast('Expense added successfully'); render();
+}
+
+/* ================= INCOME ================= */
+function renderIncome(){
+  const revenue = DB.payments.reduce((s,p)=>s+p.paidAmount,0);
+  const expenses = DB.expenses.reduce((s,e)=>s+e.amount,0);
+  const net = revenue-expenses;
+  const months=['Apr','May','Jun','Jul','Aug','Sep'];
+  const revSeries = months.map(()=>randInt(180000,260000));
+  const expSeries = months.map(()=>randInt(60000,110000));
+  return `
+  ${pageHeader('Income & Profit', 'Financial overview across all properties.')}
+  <div class="card" style="padding:22px;margin-bottom:18px;">
+    <div style="display:flex;flex-wrap:wrap;gap:20px;align-items:center;justify-content:space-between;">
+      <div><div class="section-sub">Revenue</div><div style="font-size:22px;font-weight:800;font-family:var(--font-head);color:var(--primary);">${fmt(revenue)}</div></div>
+      <div style="font-size:20px;color:var(--text-faint);">−</div>
+      <div><div class="section-sub">Expenses</div><div style="font-size:22px;font-weight:800;font-family:var(--font-head);color:var(--danger);">${fmt(expenses)}</div></div>
+      <div style="font-size:20px;color:var(--text-faint);">=</div>
+      <div><div class="section-sub">Net Income</div><div style="font-size:22px;font-weight:800;font-family:var(--font-head);">${fmt(net)}</div></div>
+    </div>
+  </div>
+  <div class="card" style="padding:18px;">
+    <h3 style="margin:0 0 14px;font-size:15px;">Revenue vs Expenses (6 months)</h3>
+    <div style="display:flex;align-items:flex-end;gap:14px;height:140px;">
+      ${months.map((m,i)=>`
+        <div style="flex:1;display:flex;gap:4px;align-items:flex-end;height:100%;">
+          <div style="flex:1;background:var(--primary);border-radius:5px 5px 2px 2px;height:${(revSeries[i]/260000*100).toFixed(0)}%;"></div>
+          <div style="flex:1;background:var(--danger);opacity:.55;border-radius:5px 5px 2px 2px;height:${(expSeries[i]/260000*100).toFixed(0)}%;"></div>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:14px;margin-top:8px;">${months.map(m=>`<div style="flex:1;text-align:center;font-size:10.5px;color:var(--text-faint);">${m}</div>`).join('')}</div>
+    <div style="display:flex;gap:16px;margin-top:14px;font-size:12px;">
+      <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:3px;background:var(--primary);"></div>Revenue</div>
+      <div style="display:flex;align-items:center;gap:6px;"><div style="width:10px;height:10px;border-radius:3px;background:var(--danger);opacity:.55;"></div>Expenses</div>
+    </div>
+  </div>`;
+}
+
+/* ================= STAFF ================= */
+function renderStaff(){
+  const role = STATE.user.role;
+  const list = role==='owner'? DB.staff : DB.staff.filter(s=>s.propertyId===STATE.user.propertyId);
+  return `
+  ${pageHeader(role==='manager'?'Workers':'Staff', `${list.length} team members`, `<button class="btn btn-primary btn-sm" onclick="toast('Add Staff form (demo)','info')">+ Add Staff</button>`)}
+  <div style="display:grid;grid-template-columns:1fr;gap:12px;" class="staff-grid">
+    ${list.map(s=>`
+      <div class="card" style="padding:16px;">
+        <div style="display:flex;gap:12px;align-items:center;">
+          <div class="avatar" style="width:44px;height:44px;">${s.photo}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:700;font-size:14px;">${s.name}</div>
+            <div style="font-size:12px;color:var(--text-faint);">${s.role} · ${s.propertyName}</div>
+          </div>
+          ${badge(s.status,'success')}
+        </div>
+        <div style="font-size:12px;color:var(--text-muted);margin:10px 0;">📞 ${s.phone} &nbsp;·&nbsp; 📅 Joined ${fmtDate(s.joiningDate)}</div>
+        <button class="btn btn-sm btn-outline btn-block" onclick="openStaffPerms('${s.id}')">Manage Permissions</button>
+      </div>`).join('')}
+  </div>
+  <style>@media(min-width:760px){.staff-grid{grid-template-columns:repeat(2,1fr) !important;}}@media(min-width:1200px){.staff-grid{grid-template-columns:repeat(3,1fr) !important;}}</style>`;
+}
+function openStaffPerms(staffId){
+  const s = DB.staff.find(x=>x.id===staffId);
+  const labels = { viewTenants:'View Tenants', manageRooms:'Manage Rooms', manageFees:'Manage Fees', printReceipts:'Print Receipts', viewReports:'View Reports', manageComplaints:'Manage Complaints', manageMaintenance:'Manage Maintenance' };
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">${s.name} — Permissions</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      ${Object.entries(labels).map(([k,l])=>`
+        <div class="perm-row"><span>${l}</span><div class="switch ${s.permissions[k]?'on':''}" onclick="togglePerm('${s.id}','${k}',this)"><i></i></div></div>`).join('')}
+      <button class="btn btn-primary btn-block" style="margin-top:16px;" onclick="closeModal();toast('Permissions updated')">Save</button>
+    </div>`);
+}
+function togglePerm(staffId, key, el){
+  const s = DB.staff.find(x=>x.id===staffId); s.permissions[key] = !s.permissions[key];
+  el.classList.toggle('on');
+}
+
+/* ================= TASKS ================= */
+function renderTasks(){
+  const role = STATE.user.role;
+  let list = [...DB.tasks];
+  if(role==='worker') list = list.filter(t=>t.assignedWorkerId===STATE.user.staffId);
+  if(role==='warden') list = list.filter(t=>t.propertyId===STATE.user.propertyId);
+  const groups = { Pending: list.filter(t=>t.status==='Pending'), 'In Progress': list.filter(t=>t.status==='In Progress'), Completed: list.filter(t=>t.status==='Completed') };
+  return `
+  ${pageHeader(role==='worker'?'My Tasks':'Maintenance Tasks', `${list.length} tasks`, (role!=='worker')?`<button class="btn btn-primary btn-sm" onclick="openAddTask()">+ Create Task</button>`:'')}
+  ${Object.entries(groups).map(([label,items])=>`
+    <h3 style="font-size:14px;margin:18px 0 10px;color:var(--text-muted);">${label} (${items.length})</h3>
+    ${items.length? `<div style="display:flex;flex-direction:column;gap:10px;">${items.map(t=>taskRow(t,role)).join('')}</div>` : `<p style="font-size:12.5px;color:var(--text-faint);">Nothing here.</p>`}
+  `).join('')}`;
+}
+function taskRow(t, role){
+  return `<div class="card" style="padding:14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+    <div style="flex:1;min-width:180px;">
+      <div style="font-weight:600;font-size:13.5px;">${t.title}</div>
+      <div style="font-size:12px;color:var(--text-faint);">${t.propertyName} · Room ${t.roomNumber} · ${t.assignedWorkerName} · Due ${fmtDate(t.dueDate)}</div>
+    </div>
+    ${badge(t.priority, t.priority==='High'?'danger':t.priority==='Medium'?'amber':'neutral')}
+    ${t.status!=='Completed'? `<select onchange="setTaskStatus('${t.id}',this.value)" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12.5px;">
+      <option ${t.status==='Pending'?'selected':''}>Pending</option><option ${t.status==='In Progress'?'selected':''}>In Progress</option><option>Completed</option>
+    </select>` : badge('Completed','success')}
+  </div>`;
+}
+function setTaskStatus(id, status){ DB.tasks.find(t=>t.id===id).status=status; toast(`Task updated to ${status}`); render(); }
+function openAddTask(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Create Task</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Task title</label><input id="tk-title" placeholder="e.g. Fix bathroom tap - Room 203"></div>
+      <div class="field"><label>Description</label><textarea id="tk-desc" rows="2"></textarea></div>
+      <div class="field"><label>Assign to</label><select id="tk-worker">${DB.staff.filter(s=>['Cleaner','Maintenance','Security'].includes(s.role)).map(s=>`<option value="${s.id}">${s.name} (${s.role})</option>`).join('')}</select></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="field"><label>Priority</label><select id="tk-priority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+        <div class="field"><label>Due date</label><input id="tk-due" type="date" value="${new Date().toISOString().slice(0,10)}"></div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="submitTask()">Create Task</button>
+    </div>`);
+}
+function submitTask(){
+  const worker = DB.staff.find(s=>s.id===document.getElementById('tk-worker').value);
+  const title = document.getElementById('tk-title').value || 'New task';
+  DB.tasks.unshift({ id:uid('TSK'), title, description:document.getElementById('tk-desc').value,
+    assignedWorkerId:worker.id, assignedWorkerName:worker.name, priority:document.getElementById('tk-priority').value,
+    propertyId:worker.propertyId, propertyName:worker.propertyName, roomNumber:'—',
+    dueDate:document.getElementById('tk-due').value, status:'Pending' });
+  closeModal(); toast('Task created and assigned'); render();
+}
+
+/* ================= COMPLAINTS ================= */
+function renderComplaints(){
+  const role = STATE.user.role;
+  let list = [...DB.complaints];
+  if(role==='warden'||role==='manager') list = list.filter(c=>c.propertyId===STATE.user.propertyId);
+  if(role==='worker') list = list.filter(c=>c.assignedWorkerId===STATE.user.staffId);
+  return `
+  ${pageHeader('Complaints', `${list.length} complaints`, (role!=='worker')?`<button class="btn btn-primary btn-sm" onclick="openAddComplaint()">+ Add Complaint</button>`:'')}
+  ${list.length? `<div style="display:flex;flex-direction:column;gap:10px;">${list.map(c=>`
+    <div class="card" style="padding:14px;">
+      <div style="display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;">
+        <strong style="font-size:14px;">${c.title}</strong>
+        ${badge(c.status, c.status==='Open'?'danger':c.status==='Resolved'?'success':c.status==='In Progress'?'amber':'info')}
+      </div>
+      <div style="font-size:12.5px;color:var(--text-faint);margin:5px 0 10px;">${c.category} · ${c.tenantName} · Room ${c.roomNumber} · ${fmtDate(c.createdDate)} · ${badge(c.priority, c.priority==='High'?'danger':c.priority==='Medium'?'amber':'neutral')}</div>
+      <p style="font-size:13px;margin:0 0 10px;color:var(--text-muted);">${c.description}</p>
+      ${(role==='owner'||role==='manager'||role==='warden')? `
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <select onchange="assignComplaint('${c.id}',this.value)" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12.5px;">
+            <option value="">Assign worker…</option>
+            ${DB.staff.filter(s=>['Cleaner','Maintenance','Security'].includes(s.role)).map(s=>`<option value="${s.id}" ${c.assignedWorkerId===s.id?'selected':''}>${s.name}</option>`).join('')}
+          </select>
+          <select onchange="setComplaintStatus('${c.id}',this.value)" style="background:var(--surface-2);border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:12.5px;">
+            ${['Open','Assigned','In Progress','Resolved'].map(s=>`<option ${c.status===s?'selected':''}>${s}</option>`).join('')}
+          </select>
+        </div>` : (role==='worker'? `<div style="display:flex;gap:8px;">
+          <button class="btn btn-sm btn-outline" onclick="updateComplaintStatus('${c.id}','In Progress')">In Progress</button>
+          <button class="btn btn-sm btn-primary" onclick="updateComplaintStatus('${c.id}','Resolved')">Resolve</button></div>`:'')}
+    </div>`).join('')}</div>` : emptyState('📣','No complaints found','Nothing has been reported yet.')}`;
+}
+function assignComplaint(id, workerId){
+  const c = DB.complaints.find(x=>x.id===id); c.assignedWorkerId=workerId||null; if(workerId) c.status='Assigned';
+  toast('Worker assigned'); render();
+}
+function setComplaintStatus(id, status){ DB.complaints.find(c=>c.id===id).status=status; toast('Status updated'); render(); }
+function openAddComplaint(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Add Complaint</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Tenant</label><select id="cp-tenant">${DB.tenants.map(t=>`<option value="${t.id}">${t.name} — Room ${t.roomNumber}</option>`).join('')}</select></div>
+      <div class="field"><label>Category</label><select id="cp-cat">${["Plumbing","Electricity","Cleaning","Wi-Fi","Room","Food","Security","Other"].map(c=>`<option>${c}</option>`).join('')}</select></div>
+      <div class="field"><label>Title</label><input id="cp-title" placeholder="Short summary"></div>
+      <div class="field"><label>Description</label><textarea id="cp-desc" rows="2"></textarea></div>
+      <div class="field"><label>Priority</label><select id="cp-priority"><option>Low</option><option selected>Medium</option><option>High</option></select></div>
+      <button class="btn btn-primary btn-block" onclick="submitComplaint()">Submit Complaint</button>
+    </div>`);
+}
+function submitComplaint(){
+  const t = DB.tenants.find(x=>x.id===document.getElementById('cp-tenant').value);
+  DB.complaints.unshift({ id:uid('CMP'), title:document.getElementById('cp-title').value||'New complaint', category:document.getElementById('cp-cat').value,
+    description:document.getElementById('cp-desc').value, propertyId:t.propertyId, propertyName:t.propertyName, roomNumber:t.roomNumber,
+    tenantId:t.id, tenantName:t.name, priority:document.getElementById('cp-priority').value, createdDate:new Date().toISOString(), assignedWorkerId:null, status:'Open' });
+  closeModal(); toast('Complaint logged'); render();
+}
+
+/* ================= VISITORS ================= */
+function renderVisitors(){
+  const today = DB.visitors;
+  return `
+  ${pageHeader('Visitors', "Today's visitor log", `<button class="btn btn-primary btn-sm" onclick="openAddVisitor()">+ Log Visitor</button>`)}
+  <div class="table-wrap">
+    <table><thead><tr><th>Visitor</th><th>Tenant</th><th>Purpose</th><th>Entry</th><th>Exit</th><th>Status</th></tr></thead>
+    <tbody>${today.length? today.map(v=>`<tr><td>${v.name}<br><span style="color:var(--text-faint);font-size:11.5px;">${v.phone}</span></td>
+      <td>${v.tenantName} — ${v.roomNumber}</td><td>${v.purpose}</td><td>${fmtDateTime(v.entryTime)}</td><td>${v.exitTime?fmtDateTime(v.exitTime):'—'}</td>
+      <td>${badge(v.status, v.status==='Checked In'?'info':'success')}</td></tr>`).join('') : `<tr><td colspan="6" style="text-align:center;padding:30px;color:var(--text-faint);">No visitors logged today</td></tr>`}</tbody></table>
+  </div>`;
+}
+function openAddVisitor(){
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">Log Visitor</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <div class="field"><label>Visitor name</label><input id="vs-name"></div>
+      <div class="field"><label>Phone</label><input id="vs-phone"></div>
+      <div class="field"><label>Meeting tenant</label><select id="vs-tenant">${DB.tenants.map(t=>`<option value="${t.id}">${t.name} — Room ${t.roomNumber}</option>`).join('')}</select></div>
+      <div class="field"><label>Purpose</label><select id="vs-purpose"><option>Family visit</option><option>Friend visit</option><option>Delivery</option><option>Guest stay</option></select></div>
+      <div class="field"><label>ID proof</label><select id="vs-id"><option>Aadhaar Card</option><option>PAN Card</option><option>Passport</option><option>Voter ID</option></select></div>
+      <button class="btn btn-primary btn-block" onclick="submitVisitor()">Check In</button>
+    </div>`);
+}
+function submitVisitor(){
+  const t = DB.tenants.find(x=>x.id===document.getElementById('vs-tenant').value);
+  DB.visitors.unshift({ id:uid('VIS'), name:document.getElementById('vs-name').value||'Visitor', phone:document.getElementById('vs-phone').value,
+    tenantId:t.id, tenantName:t.name, roomNumber:t.roomNumber, propertyName:t.propertyName, purpose:document.getElementById('vs-purpose').value,
+    entryTime:new Date().toISOString(), exitTime:null, idProof:document.getElementById('vs-id').value, status:'Checked In' });
+  closeModal(); toast('Visitor checked in'); render();
+}
+
+/* ================= ATTENDANCE ================= */
+function renderAttendance(){
+  const propertyId = STATE.user.role==='owner' ? (STATE.params.property||DB.properties[0].id) : STATE.user.propertyId;
+  const tenants = DB.tenants.filter(t=>t.propertyId===propertyId && t.status==='Active');
+  STATE.toggles.attendance = STATE.toggles.attendance || {};
+  tenants.forEach(t=>{ if(STATE.toggles.attendance[t.id]===undefined) STATE.toggles.attendance[t.id]=true; });
+  const presentCount = tenants.filter(t=>STATE.toggles.attendance[t.id]).length;
+  return `
+  ${pageHeader('Attendance', `${DB.properties.find(p=>p.id===propertyId)?.name} · ${fmtDate(new Date())}`)}
+  <div class="card" style="padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+    <div style="flex:1;"><div class="section-sub">Attendance</div><div style="font-size:20px;font-weight:800;">${presentCount}/${tenants.length} present</div></div>
+    <div class="progress-bar" style="flex:1;"><div style="width:${(presentCount/tenants.length*100).toFixed(0)}%;"></div></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;">
+    ${tenants.map(t=>`
+      <div class="card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;">${t.photo}</div>
+        <div style="flex:1;"><div style="font-weight:600;font-size:13.5px;">${t.name}</div><div style="font-size:11.5px;color:var(--text-faint);">Room ${t.roomNumber}</div></div>
+        <button class="btn btn-sm ${STATE.toggles.attendance[t.id]?'btn-primary':'btn-outline'}" onclick="STATE.toggles.attendance['${t.id}']=true;render()">Present</button>
+        <button class="btn btn-sm ${!STATE.toggles.attendance[t.id]?'btn-danger':'btn-outline'}" onclick="STATE.toggles.attendance['${t.id}']=false;render()">Absent</button>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ================= NOTIFICATIONS ================= */
+function renderNotifications(){
+  return `
+  ${pageHeader('Notifications', `${DB.notifications.filter(n=>!n.read).length} unread`, `<button class="btn btn-outline btn-sm" onclick="DB.notifications.forEach(n=>n.read=true);render()">Mark all read</button>`)}
+  <div style="display:flex;flex-direction:column;gap:2px;">
+    ${DB.notifications.map(n=>`
+      <div class="card" style="padding:13px 16px;margin-bottom:8px;display:flex;gap:12px;align-items:flex-start;background:${n.read?'var(--surface)':'var(--primary-light)'};" onclick="n.read=true;render()">
+        <div style="font-size:20px;">${n.icon}</div>
+        <div style="flex:1;">
+          <div style="font-size:13.5px;font-weight:${n.read?'500':'700'};">${n.message}</div>
+          <div style="font-size:11.5px;color:var(--text-faint);margin-top:2px;">${n.type} · ${fmtDateTime(n.date)}</div>
+        </div>
+        ${!n.read?`<div style="width:8px;height:8px;border-radius:50%;background:var(--primary);margin-top:4px;flex-shrink:0;"></div>`:''}
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ================= REPORTS ================= */
+function renderReports(){
+  const occ = occupancyFor(null);
+  const collected = DB.payments.reduce((s,p)=>s+p.paidAmount,0);
+  const pending = DB.tenants.reduce((s,t)=>s+t.pending,0);
+  const overdue = DB.tenants.filter(t=>t.paymentStatus==='overdue').reduce((s,t)=>s+t.pending,0);
+  const methodBreak = {};
+  DB.payments.forEach(p=>{ methodBreak[p.method]=(methodBreak[p.method]||0)+p.paidAmount; });
+  const expenseByCategory = {};
+  DB.expenses.forEach(e=>{ expenseByCategory[e.category]=(expenseByCategory[e.category]||0)+e.amount; });
+  const revenue = collected, expenses = DB.expenses.reduce((s,e)=>s+e.amount,0);
+
+  return `
+  ${pageHeader('Reports', 'Occupancy, collections, tenants, expenses and profit — in one place.', `<button class="btn btn-outline btn-sm" onclick="window.print()">🖨️ Print</button><button class="btn btn-outline btn-sm" onclick="toast('Report exported (demo)','info')">⬇ Export</button>`)}
+
+  <div style="display:grid;grid-template-columns:1fr;gap:14px;" class="reports-grid">
+    <div class="card" style="padding:18px;">
+      <h3 style="margin:0 0 12px;font-size:15px;">Occupancy Report</h3>
+      <div class="kv"><span class="k">Total beds</span><span class="v">${occ.total}</span></div>
+      <div class="kv"><span class="k">Occupied</span><span class="v">${occ.occ}</span></div>
+      <div class="kv"><span class="k">Available</span><span class="v">${occ.avail}</span></div>
+      <div class="kv"><span class="k">Occupancy %</span><span class="v">${Math.round(occ.occ/occ.total*100)}%</span></div>
+    </div>
+    <div class="card" style="padding:18px;">
+      <h3 style="margin:0 0 12px;font-size:15px;">Fee Collection Report</h3>
+      <div class="kv"><span class="k">Total collection</span><span class="v">${fmt(collected)}</span></div>
+      <div class="kv"><span class="k">Pending</span><span class="v">${fmt(pending)}</span></div>
+      <div class="kv"><span class="k">Overdue</span><span class="v">${fmt(overdue)}</span></div>
+      ${Object.entries(methodBreak).map(([m,a])=>`<div class="kv"><span class="k">via ${m}</span><span class="v">${fmt(a)}</span></div>`).join('')}
+    </div>
+    <div class="card" style="padding:18px;">
+      <h3 style="margin:0 0 12px;font-size:15px;">Tenant Report</h3>
+      <div class="kv"><span class="k">Active tenants</span><span class="v">${DB.tenants.filter(t=>t.status==='Active').length}</span></div>
+      <div class="kv"><span class="k">New (30 days)</span><span class="v">${DB.tenants.filter(t=>new Date(t.checkIn) > new Date(Date.now()-30*864e5)).length}</span></div>
+      <div class="kv"><span class="k">Checked out</span><span class="v">${DB.tenants.filter(t=>t.status==='Checked Out').length}</span></div>
+    </div>
+    <div class="card" style="padding:18px;">
+      <h3 style="margin:0 0 12px;font-size:15px;">Expense Report</h3>
+      ${Object.entries(expenseByCategory).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([c,a])=>`<div class="kv"><span class="k">${c}</span><span class="v">${fmt(a)}</span></div>`).join('')}
+    </div>
+    <div class="card" style="padding:18px;">
+      <h3 style="margin:0 0 12px;font-size:15px;">Profit Report</h3>
+      <div class="kv"><span class="k">Revenue</span><span class="v">${fmt(revenue)}</span></div>
+      <div class="kv"><span class="k">Expenses</span><span class="v">${fmt(expenses)}</span></div>
+      <div class="kv" style="font-weight:700;"><span class="k">Net profit</span><span class="v" style="color:var(--primary)">${fmt(revenue-expenses)}</span></div>
+    </div>
+  </div>
+  <style>@media(min-width:900px){.reports-grid{grid-template-columns:repeat(2,1fr) !important;}}@media(min-width:1300px){.reports-grid{grid-template-columns:repeat(3,1fr) !important;}}</style>
+  `;
+}
+
+/* ================= SETTINGS ================= */
+function renderSettings(){
+  const sections = [
+    {ic:'👤',label:'Profile', desc:'Your name, contact and login details'},
+    {ic:'🏢',label:'Property Settings', desc:'PG details, logo and contact info'},
+    {ic:'💰',label:'Fee Settings', desc:'Rent due date, late fee rules'},
+    {ic:'🔔',label:'Notification Settings', desc:'Choose what alerts you receive'},
+    {ic:'🔐',label:'User & Permissions', desc:'Manage roles and access'},
+    {ic:'💳',label:'Payment Settings', desc:'Accepted payment methods'},
+    {ic:'🧾',label:'Receipt Settings', desc:'Receipt number format and template'},
+    {ic:'⚙️',label:'System Settings', desc:'Currency, timezone and general prefs'},
+  ];
+  return `
+  ${pageHeader('Settings', 'Configure how Nestly works for your properties.')}
+  <div style="display:grid;grid-template-columns:1fr;gap:10px;" class="settings-grid">
+    ${sections.map(s=>`
+      <div class="card" style="padding:16px;display:flex;align-items:center;gap:14px;cursor:pointer;" onclick="openSettingsPanel('${s.label}')">
+        <div style="font-size:22px;">${s.ic}</div>
+        <div style="flex:1;"><div style="font-weight:700;font-size:14px;">${s.label}</div><div style="font-size:12px;color:var(--text-faint);">${s.desc}</div></div>
+        <div style="color:var(--text-faint);">›</div>
+      </div>`).join('')}
+  </div>
+  <style>@media(min-width:760px){.settings-grid{grid-template-columns:repeat(2,1fr) !important;}}</style>`;
+}
+function openSettingsPanel(label){
+  let body = `<p style="font-size:13.5px;color:var(--text-muted);">This settings panel is fully mocked for the demo.</p>`;
+  if(label==='Fee Settings') body = `
+    <div class="field"><label>Currency</label><select><option>INR (₹)</option><option>USD ($)</option></select></div>
+    <div class="field"><label>Default rent due date</label><select><option>5th of every month</option><option>1st of every month</option></select></div>
+    <div class="field"><label>Late fee (₹/day)</label><input type="number" value="50"></div>`;
+  if(label==='Property Settings') body = `
+    <div class="field"><label>PG name</label><input value="Sunrise PG"></div>
+    <div class="field"><label>Contact number</label><input value="+91 98480 11223"></div>
+    <div class="field"><label>Address</label><textarea rows="2">Plot 14, Financial District Rd, Gachibowli</textarea></div>`;
+  openModal(`
+    <div class="modal-head"><h3 style="margin:0;font-size:16px;">${label}</h3><button class="icon-btn" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">${body}<button class="btn btn-primary btn-block" style="margin-top:6px;" onclick="closeModal();toast('Settings saved')">Save Changes</button></div>`);
+}
+
+/* ---------------- GLOBAL HANDLERS ---------------- */
+function attachGlobalHandlers(){
+  document.getElementById('app').addEventListener('click', (e)=>{
+    const navEl = e.target.closest('[data-nav]');
+    if(navEl){ go(navEl.dataset.nav); return; }
+    const actionEl = e.target.closest('[data-action]');
+    if(actionEl){
+      const a = actionEl.dataset.action;
+      if(a==='logout') logout();
+      else if(a==='open-search') openSearch();
+      else if(a==='open-more') openMoreSheet();
+      else if(a==='open-profile') openProfileMenu();
+      else if(a==='fab-action') fabAction();
+      return;
+    }
+  }, { once:false });
+}
+
+/* Keyboard shortcut: Escape closes modal */
+document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeModal(); });
+
+/* ---------------- INIT ---------------- */
+document.body.setAttribute('data-theme', STATE.theme);
+render();
+</script>
+</body>
+</html>
