@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Nestly — Hostel &amp; PG Management</title>
+<title>Santoshi Boys Hostel — Premier Accommodation in Hyderabad</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
@@ -201,6 +201,154 @@ tr:last-child td{border-bottom:none;}
 .switch.on i{left:18px;}
 
 .access-denied{text-align:center;padding:80px 20px;}
+
+/* ============ SANTOSHI BOYS HOSTEL WEBSITE STYLES ============ */
+.sh-page { font-family: var(--font-body); color: var(--text); background: var(--bg); overflow-x: hidden; }
+
+.sh-announcement { background: linear-gradient(90deg, #1E4D40, #2F6F5E, #C8862A); color: #fff; padding: 8px 16px; text-align: center; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.sh-ann-link { color: #FFE082; text-decoration: underline; font-weight: 700; }
+
+.sh-navbar { position: sticky; top: 0; z-index: 100; background: rgba(255, 255, 255, 0.94); backdrop-filter: blur(14px); border-bottom: 1px solid var(--border); transition: all 0.3s ease; }
+[data-theme="dark"] .sh-navbar { background: rgba(20, 23, 26, 0.94); }
+.sh-nav-container { max-width: 1280px; margin: 0 auto; padding: 12px 24px; display: flex; align-items: center; justify-content: space-between; }
+.sh-brand { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.sh-logo-icon { width: 42px; height: 42px; background: linear-gradient(135deg, var(--primary), #1B4D3E); color: #fff; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 4px 12px rgba(47, 111, 94, 0.25); }
+.sh-brand-name { font-family: var(--font-head); font-weight: 800; font-size: 19px; letter-spacing: -0.3px; line-height: 1.1; }
+.sh-brand-tag { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+.sh-nav-links { display: flex; align-items: center; gap: 24px; }
+.sh-nav-link { text-decoration: none; color: var(--text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s ease; position: relative; }
+.sh-nav-link:hover, .sh-nav-link.active { color: var(--primary); }
+.sh-nav-link.active::after { content: ''; position: absolute; bottom: -6px; left: 0; right: 0; height: 2.5px; background: var(--primary); border-radius: 4px; }
+.sh-nav-actions { display: flex; align-items: center; gap: 12px; }
+
+.sh-btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 10px; padding: 10px 20px; font-size: 14px; font-weight: 700; border: 1px solid transparent; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); text-decoration: none; }
+.sh-btn-sm { padding: 6px 14px; font-size: 12.5px; border-radius: 8px; }
+.sh-btn-lg { padding: 14px 28px; font-size: 15px; border-radius: 12px; }
+.sh-btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: #fff; box-shadow: 0 4px 14px rgba(47, 111, 94, 0.28); }
+.sh-btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(47, 111, 94, 0.38); }
+.sh-btn-secondary { background: var(--surface-2); color: var(--text); border: 1px solid var(--border); }
+.sh-btn-secondary:hover { background: var(--surface-3); transform: translateY(-2px); }
+.sh-btn-outline { border: 1.5px solid var(--primary); color: var(--primary); background: transparent; }
+.sh-btn-outline:hover { background: var(--primary-light); }
+.sh-btn-gold { background: linear-gradient(135deg, #D48828, #A66617); color: #fff; box-shadow: 0 4px 14px rgba(212, 136, 40, 0.3); }
+.sh-btn-gold:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(212, 136, 40, 0.4); }
+.sh-btn-block { width: 100%; text-align: center; }
+
+.sh-mobile-menu { position: absolute; top: 100%; left: 0; right: 0; background: var(--surface); border-bottom: 1px solid var(--border); padding: 16px 24px; display: flex; flex-direction: column; gap: 14px; box-shadow: var(--shadow-2); }
+.sh-mobile-menu.hidden { display: none; }
+.sh-mobile-menu a { text-decoration: none; font-size: 15px; font-weight: 600; color: var(--text); padding: 8px 0; border-bottom: 1px solid var(--border); }
+
+.sh-hero { position: relative; padding: 60px 24px 80px; max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center; }
+@media(min-width: 1024px) { .sh-hero { grid-template-columns: 1.15fr 0.85fr; padding: 80px 24px 100px; } }
+.sh-pill-badge { display: inline-flex; align-items: center; gap: 8px; background: var(--primary-light); color: var(--primary-dark); padding: 6px 14px; border-radius: 30px; font-size: 12.5px; font-weight: 700; margin-bottom: 18px; border: 1px solid rgba(47,111,94,0.2); }
+.sh-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); animation: glowPulse 1.8s infinite; }
+@keyframes glowPulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.4); opacity: 0.5; } }
+
+.sh-hero-title { font-family: var(--font-head); font-size: 36px; font-weight: 800; line-height: 1.15; letter-spacing: -0.8px; margin: 0 0 16px; }
+@media(min-width: 768px) { .sh-hero-title { font-size: 48px; } }
+.sh-gradient-text { background: linear-gradient(135deg, var(--primary), #C8862A); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+.sh-hero-desc { font-size: 16px; color: var(--text-muted); line-height: 1.6; margin: 0 0 28px; max-width: 580px; }
+.sh-hero-ctas { display: flex; flex-wrap: wrap; gap: 14px; margin-bottom: 36px; }
+
+.sh-stats-bar { display: flex; align-items: center; gap: 20px; background: var(--surface); border: 1px solid var(--border); padding: 16px 24px; border-radius: 16px; box-shadow: var(--shadow-2); flex-wrap: wrap; }
+.sh-stat-item { flex: 1; min-width: 100px; text-align: center; }
+.sh-stat-num { font-family: var(--font-head); font-weight: 800; font-size: 22px; color: var(--primary); }
+.sh-stat-lbl { font-size: 11.5px; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+.sh-stat-divider { width: 1px; height: 32px; background: var(--border); }
+
+.sh-hero-visuals { display: flex; flex-direction: column; gap: 16px; }
+@media(min-width: 640px) { .sh-hero-visuals { display: grid; grid-template-columns: 1.4fr 1fr; } }
+.sh-visual-card { position: relative; border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-2); border: 1px solid var(--border); }
+.sh-visual-card img { width: 100%; height: 100%; min-height: 220px; max-height: 340px; object-fit: cover; transition: transform 0.4s ease; }
+.sh-visual-card:hover img { transform: scale(1.05); }
+.sh-visual-tag { position: absolute; bottom: 12px; left: 12px; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); color: #fff; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 700; }
+.sh-visual-stack { display: flex; flex-direction: column; gap: 16px; }
+
+.sh-section { padding: 70px 24px; max-width: 1280px; margin: 0 auto; }
+.sh-section-head { text-align: center; max-width: 640px; margin: 0 auto 48px; }
+.sh-sub-pill { display: inline-block; font-size: 11.5px; font-weight: 800; letter-spacing: 1px; color: var(--primary); background: var(--primary-light); padding: 4px 12px; border-radius: 20px; margin-bottom: 10px; }
+.sh-section-head h2 { font-family: var(--font-head); font-size: 30px; font-weight: 800; margin: 0 0 10px; }
+@media(min-width: 768px) { .sh-section-head h2 { font-size: 36px; } }
+.sh-section-head p { font-size: 15px; color: var(--text-muted); margin: 0; }
+
+.sh-about-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.sh-about-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 16px; transition: transform 0.25s ease, box-shadow 0.25s ease; }
+.sh-about-card:hover { transform: translateY(-5px); box-shadow: var(--shadow-2); border-color: var(--primary); }
+.sh-about-icon { font-size: 34px; margin-bottom: 14px; display: inline-block; padding: 10px; background: var(--surface-2); border-radius: 12px; }
+.sh-about-card h3 { font-family: var(--font-head); font-size: 17px; font-weight: 700; margin: 0 0 8px; }
+.sh-about-card p { font-size: 13.5px; color: var(--text-muted); margin: 0; line-height: 1.5; }
+
+.sh-rooms-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(270px, 1fr)); gap: 24px; }
+.sh-room-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; overflow: hidden; transition: all 0.3s ease; display: flex; flex-direction: column; position: relative; }
+.sh-room-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-2); border-color: var(--primary); }
+.sh-room-card.highlight-card { border: 2px solid var(--primary); box-shadow: 0 8px 24px rgba(47, 111, 94, 0.15); }
+.sh-room-badge { position: absolute; top: 12px; right: 12px; z-index: 2; background: var(--amber); color: #fff; font-size: 11px; font-weight: 800; padding: 4px 10px; border-radius: 20px; letter-spacing: 0.5px; text-transform: uppercase; }
+.sh-room-img-wrapper { position: relative; height: 190px; overflow: hidden; }
+.sh-room-img-wrapper img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.sh-room-card:hover .sh-room-img-wrapper img { transform: scale(1.08); }
+.sh-room-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+.sh-room-type { font-family: var(--font-head); font-weight: 700; font-size: 18px; margin-bottom: 6px; }
+.sh-room-price { font-family: var(--font-head); font-size: 24px; font-weight: 800; color: var(--primary); margin-bottom: 14px; }
+.sh-period { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+.sh-room-feats { list-style: none; padding: 0; margin: 0 0 20px; flex: 1; }
+.sh-room-feats li { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+
+.sh-mess-section { background: var(--surface-2); border-radius: 24px; border: 1px solid var(--border); margin-top: 20px; }
+.sh-mess-tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 14px; margin-bottom: 24px; scrollbar-width: none; }
+.sh-mess-tabs::-webkit-scrollbar { display: none; }
+.sh-mess-tab { padding: 10px 18px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); font-size: 13.5px; font-weight: 700; color: var(--text-muted); cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
+.sh-mess-tab.active { background: var(--primary); color: #fff; border-color: var(--primary-dark); box-shadow: 0 4px 12px rgba(47, 111, 94, 0.25); }
+
+.sh-mess-display-card { background: var(--surface); border: 1px solid var(--border); border-radius: 18px; padding: 28px; box-shadow: var(--shadow-1); }
+.sh-meal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 16px; }
+.sh-meal-box { background: var(--bg); border: 1px solid var(--border); padding: 16px; border-radius: 14px; }
+.sh-meal-title { font-weight: 700; font-size: 14px; color: var(--primary); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.sh-meal-time { font-size: 11px; color: var(--text-faint); font-weight: 600; margin-bottom: 8px; }
+.sh-meal-items { font-size: 13px; color: var(--text); line-height: 1.5; }
+
+.sh-fac-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+.sh-fac-card { background: var(--surface); border: 1px solid var(--border); padding: 22px; border-radius: 16px; display: flex; flex-direction: column; gap: 8px; transition: transform 0.2s ease; }
+.sh-fac-card:hover { transform: translateY(-4px); border-color: var(--primary); }
+.sh-fac-icon { font-size: 28px; }
+.sh-fac-card h4 { font-family: var(--font-head); font-size: 16px; font-weight: 700; margin: 0; }
+.sh-fac-card p { font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.4; }
+
+.sh-gallery-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 18px; }
+.sh-gallery-item { position: relative; border-radius: 16px; overflow: hidden; height: 210px; border: 1px solid var(--border); }
+.sh-gallery-item img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
+.sh-gallery-item:hover img { transform: scale(1.08); }
+.sh-gallery-cap { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, transparent 100%); color: #fff; padding: 20px 14px 10px; font-size: 13px; font-weight: 700; }
+
+.sh-test-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+.sh-test-card { background: var(--surface); border: 1px solid var(--border); padding: 24px; border-radius: 18px; box-shadow: var(--shadow-1); }
+.sh-test-stars { color: #F59E0B; font-size: 15px; margin-bottom: 12px; }
+.sh-test-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; font-style: italic; margin-bottom: 18px; }
+.sh-test-author { display: flex; align-items: center; gap: 12px; }
+.sh-avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: #fff; font-weight: 800; font-size: 14px; display: flex; align-items: center; justify-content: center; }
+.sh-test-name { font-weight: 700; font-size: 14px; }
+.sh-test-role { font-size: 11.5px; color: var(--text-muted); }
+
+.sh-contact-container { display: grid; grid-template-columns: 1fr; gap: 40px; }
+@media(min-width: 900px) { .sh-contact-container { grid-template-columns: 1fr 1fr; } }
+.sh-contact-info { display: flex; flex-direction: column; gap: 18px; }
+.sh-info-list { display: flex; flex-direction: column; gap: 16px; margin-top: 10px; }
+.sh-info-item { display: flex; gap: 14px; font-size: 13.5px; color: var(--text-muted); }
+.sh-info-icon { font-size: 22px; flex-shrink: 0; }
+.sh-portal-box { background: var(--primary-light); border: 1px solid rgba(47,111,94,0.2); border-radius: 16px; padding: 20px; margin-top: 16px; }
+.sh-portal-box h4 { margin: 0 0 6px; font-family: var(--font-head); font-size: 15px; color: var(--primary-dark); }
+.sh-portal-box p { font-size: 13px; color: var(--text-muted); margin: 0 0 14px; }
+
+.sh-contact-form-card { background: var(--surface); border: 1px solid var(--border); padding: 30px; border-radius: 20px; box-shadow: var(--shadow-2); }
+.sh-contact-form-card h3 { font-family: var(--font-head); font-size: 20px; font-weight: 800; margin: 0 0 6px; }
+.sh-contact-form-card p { font-size: 13px; color: var(--text-muted); margin: 0 0 20px; }
+
+.sh-footer { background: #121619; color: #EDEBE6; padding: 50px 24px 24px; margin-top: 60px; }
+.sh-footer-inner { max-width: 1280px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 36px; padding-bottom: 40px; border-bottom: 1px solid #2C3239; }
+.sh-footer a { color: #A2A099; text-decoration: none; transition: color 0.2s ease; }
+.sh-footer a:hover { color: #fff; }
+.sh-footer-bottom { max-width: 1280px; margin: 24px auto 0; text-align: center; font-size: 12.5px; color: #6E6B64; }
+
 </style>
 </head>
 <body data-theme="light">
@@ -498,6 +646,586 @@ function bedStatusMeta(status){
     reserved:{label:'Reserved',cls:'bed-reserved',dot:'🟠'}, maintenance:{label:'Maintenance',cls:'bed-maintenance',dot:'🔴'} }[status];
 }
 
+
+const MESS_MENU = {
+  mon: { day: "Monday", bf: "Idli & Vada with Coconut Chutney & Sambhar + Tea/Coffee", lunch: "South Indian Thali: Rice, Dal Fry, Potato Capsicum Fry, Sambhar, Curd & Papad", snacks: "Hot Samosa with Mint Chutney & Tea", dinner: "Phulka Roti, Paneer Butter Masala, Rice, Rasam & Sweet Gulab Jamun" },
+  tue: { day: "Tuesday", bf: "Puri & Aloo Masala Curry + Tea/Coffee", lunch: "Vegetable Biryani, Mirchi Ka Salan, Onion Raita & Curd Rice", snacks: "Mirchi Bajji & Evening Tea", dinner: "Phulka Roti, Chana Masala, Jeera Rice, Dal & Curd" },
+  wed: { day: "Wednesday (Special)", bf: "Poha / Upma with Peanut Chutney + Coffee", lunch: "Rice, Dal Tadka, Mix Veg Curry, Sambhar & Curd", snacks: "Biscuits & Milk / Tea", dinner: "Chicken Curry / Paneer Tikka Masala, Phulka Roti, Rice & Rice Kheer" },
+  thu: { day: "Thursday", bf: "Masala Dosa / Mysuru Bonda with Ginger Chutney + Tea", lunch: "Rice, Tomato Dal, Aloo Fry, Majjiga Pulusu & Curd", snacks: "Bread Pakora & Tea", dinner: "Phulka Roti, Egg Curry / Aloo Gobi Curry, Rice & Rasam" },
+  fri: { day: "Friday", bf: "Aloo Paratha with Amul Butter & Curd + Tea", lunch: "Rajma Chawal / Dal Makhani, Phulka Roti & Fresh Green Salad", snacks: "Veg Cutlet & Tea", dinner: "Veg Pulao, Paneer Curry, Phulka Roti & Ice Cream" },
+  sat: { day: "Saturday", bf: "Onion Uttapam / Set Dosa with Chutney & Sambhar + Tea", lunch: "Rice, Palak Dal, Meal Maker Curry, Sambhar & Curd", snacks: "Bhel Puri / Chana Chat & Tea", dinner: "Phulka Roti, Veg Manchurian Gravy, Veg Fried Rice & Dal" },
+  sun: { day: "Sunday (Feast Special)", bf: "Chole Bhature with Pickled Onions + Tea", lunch: "Hyderabadi Chicken Biryani / Paneer Biryani, Double Ka Meetha & Raita", snacks: "Tea & Cookies", dinner: "Phulka Roti, Malai Kofta Curry, Rice & Curd" }
+};
+let currentMessDay = 'mon';
+
+function renderWebsite(){
+  return `
+  <div class="sh-page">
+    <div class="sh-announcement">
+      <span>🔥 Admissions Open for Financial District & Madhapur Batches 2026! Reserve AC/Non-AC Rooms Today.</span>
+      <a href="#contact" class="sh-ann-link">Inquire Now →</a>
+    </div>
+
+    <header class="sh-navbar">
+      <div class="sh-nav-container">
+        <div class="sh-brand" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+          <div class="sh-logo-icon">🏢</div>
+          <div>
+            <div class="sh-brand-name">Santoshi Boys Hostel</div>
+            <div class="sh-brand-tag">Gachibowli &amp; Madhapur · Hyderabad</div>
+          </div>
+        </div>
+        <nav class="sh-nav-links desktop-only">
+          <a href="#hero" class="sh-nav-link active">Home</a>
+          <a href="#about" class="sh-nav-link">About Us</a>
+          <a href="#rooms" class="sh-nav-link">Rooms &amp; Rent</a>
+          <a href="#mess" class="sh-nav-link">Mess &amp; Food</a>
+          <a href="#facilities" class="sh-nav-link">Facilities</a>
+          <a href="#gallery" class="sh-nav-link">Gallery</a>
+          <a href="#contact" class="sh-nav-link">Contact</a>
+        </nav>
+        <div class="sh-nav-actions">
+          <button class="sh-btn sh-btn-outline desktop-only" onclick="openInquiryModal()">Book Visit</button>
+          <button class="sh-btn sh-btn-primary" onclick="go('login')">
+            <span>🔑</span> Login
+          </button>
+          <button class="icon-btn mobile-only" onclick="toggleMobileNav()">☰</button>
+        </div>
+      </div>
+      <div id="sh-mobile-menu" class="sh-mobile-menu hidden">
+        <a href="#hero" onclick="toggleMobileNav()">Home</a>
+        <a href="#about" onclick="toggleMobileNav()">About Us</a>
+        <a href="#rooms" onclick="toggleMobileNav()">Rooms &amp; Pricing</a>
+        <a href="#mess" onclick="toggleMobileNav()">Mess Menu</a>
+        <a href="#facilities" onclick="toggleMobileNav()">Facilities</a>
+        <a href="#gallery" onclick="toggleMobileNav()">Photo Gallery</a>
+        <a href="#contact" onclick="toggleMobileNav()">Contact Us</a>
+        <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="toggleMobileNav();go('login')">🔑 Portal Login</button>
+      </div>
+    </header>
+
+    <section id="hero" class="sh-hero">
+      <div class="sh-hero-content">
+        <div class="sh-pill-badge">
+          <span class="sh-pill-dot"></span> Premier Luxury Accommodation for Boys in Hyderabad
+        </div>
+        <h1 class="sh-hero-title">
+          Your Perfect Home Away From Home at <span class="sh-gradient-text">Santoshi Boys Hostel</span>
+        </h1>
+        <p class="sh-hero-desc">
+          Premium AC &amp; Non-AC Rooms, 100% Hygienic 4-Time Homely Food, High-Speed Wi-Fi, 24/7 Security &amp; Daily Housekeeping — Located in Gachibowli &amp; Madhapur near top IT Parks &amp; Colleges.
+        </p>
+        <div class="sh-hero-ctas">
+          <a href="#rooms" class="sh-btn sh-btn-lg sh-btn-primary">
+            Explore Rooms &amp; Pricing ↓
+          </a>
+          <button class="sh-btn sh-btn-lg sh-btn-secondary" onclick="go('login')">
+            <span>🔑</span> Student &amp; Staff Portal Login
+          </button>
+          <button class="sh-btn sh-btn-lg sh-btn-gold" onclick="openInquiryModal()">
+            <span>📞</span> Quick Inquiry
+          </button>
+        </div>
+
+        <div class="sh-stats-bar">
+          <div class="sh-stat-item">
+            <div class="sh-stat-num">350+</div>
+            <div class="sh-stat-lbl">Happy Residents</div>
+          </div>
+          <div class="sh-stat-divider"></div>
+          <div class="sh-stat-item">
+            <div class="sh-stat-num">3</div>
+            <div class="sh-stat-lbl">Prime Branches</div>
+          </div>
+          <div class="sh-stat-divider"></div>
+          <div class="sh-stat-item">
+            <div class="sh-stat-num">100%</div>
+            <div class="sh-stat-lbl">Hygienic Homely Food</div>
+          </div>
+          <div class="sh-stat-divider"></div>
+          <div class="sh-stat-item">
+            <div class="sh-stat-num">4.9 ★</div>
+            <div class="sh-stat-lbl">500+ Google Reviews</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sh-hero-visuals">
+        <div class="sh-visual-card main-visual">
+          <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80" alt="Santoshi Boys Hostel Room" />
+          <div class="sh-visual-tag">Modern AC Bedrooms</div>
+        </div>
+        <div class="sh-visual-stack">
+          <div class="sh-visual-card">
+            <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=400&q=80" alt="Mess &amp; Dining Hall" />
+            <div class="sh-visual-tag">Clean Dining Hall</div>
+          </div>
+          <div class="sh-visual-card">
+            <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5414a3?auto=format&fit=crop&w=400&q=80" alt="Study Room" />
+            <div class="sh-visual-tag">Quiet Study Lounge</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="about" class="sh-section sh-about-section">
+      <div class="sh-section-head">
+        <div class="sh-sub-pill">WHY CHOOSE US</div>
+        <h2>Designed for Comfort, Peace of Mind &amp; Academic Focus</h2>
+        <p>Santoshi Boys Hostel provides world-class living spaces for students, software engineers, and working professionals in Hyderabad.</p>
+      </div>
+      <div class="sh-about-grid">
+        <div class="sh-about-card">
+          <div class="sh-about-icon">📍</div>
+          <h3>Prime Connectivity</h3>
+          <p>Just 5 minutes from Mindspace IT Park, Financial District, DLF Cyber City, and major engineering colleges.</p>
+        </div>
+        <div class="sh-about-card">
+          <div class="sh-about-icon">🍲</div>
+          <h3>4-Time Delicious Meals</h3>
+          <p>Freshly prepared North &amp; South Indian dishes (Breakfast, Lunch, Evening Snacks &amp; Dinner) prepared under strict hygiene standards.</p>
+        </div>
+        <div class="sh-about-card">
+          <div class="sh-about-icon">🛡️</div>
+          <h3>3-Tier Security</h3>
+          <p>24x7 CCTV monitoring, biometric access control gates, and dedicated resident wardens ensuring absolute safety.</p>
+        </div>
+        <div class="sh-about-card">
+          <div class="sh-about-icon">⚡</div>
+          <h3>Zero Interruption</h3>
+          <p>100% DG Power Backup, 300 Mbps High-Speed Wi-Fi mesh, and 24/7 hot water supply via solar &amp; geysers.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="rooms" class="sh-section sh-rooms-section">
+      <div class="sh-section-head">
+        <div class="sh-sub-pill">ROOM OPTIONS &amp; RENT</div>
+        <h2>Fully Furnished Luxury Rooms</h2>
+        <p>Choose from Single, Double, Triple, or Four Sharing AC &amp; Non-AC room configurations.</p>
+      </div>
+
+      <div class="sh-rooms-grid">
+        <div class="sh-room-card highlight-card">
+          <div class="sh-room-badge">Most Popular</div>
+          <div class="sh-room-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80" alt="Single Deluxe Room" />
+          </div>
+          <div class="sh-room-body">
+            <div class="sh-room-type">Single Deluxe (AC / Non-AC)</div>
+            <div class="sh-room-price">₹12,000 <span class="sh-period">/ month</span></div>
+            <ul class="sh-room-feats">
+              <li>✓ Private Attached Bathroom &amp; Geyser</li>
+              <li>✓ Ergonomic Study Desk &amp; High-Back Chair</li>
+              <li>✓ Smart LED TV &amp; Individual Locker</li>
+              <li>✓ High-Speed 300Mbps Wi-Fi Point</li>
+              <li>✓ Daily Room Housekeeping</li>
+            </ul>
+            <button class="sh-btn sh-btn-primary sh-btn-block" onclick="openInquiryModal('Single Deluxe')">Inquire / Book Now</button>
+          </div>
+        </div>
+
+        <div class="sh-room-card">
+          <div class="sh-room-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80" alt="Double Sharing Room" />
+          </div>
+          <div class="sh-room-body">
+            <div class="sh-room-type">Double Sharing (AC / Non-AC)</div>
+            <div class="sh-room-price">₹8,500 <span class="sh-period">/ month</span></div>
+            <ul class="sh-room-feats">
+              <li>✓ Attached Bathroom with Hot Water</li>
+              <li>✓ 2 Separate Wooden Wardrobes</li>
+              <li>✓ Twin Study Tables &amp; Book Shelves</li>
+              <li>✓ Balcony View Options Available</li>
+              <li>✓ Includes 4 Meals + Tea &amp; Snacks</li>
+            </ul>
+            <button class="sh-btn sh-btn-outline sh-btn-block" onclick="openInquiryModal('Double Sharing')">Inquire / Book Now</button>
+          </div>
+        </div>
+
+        <div class="sh-room-card">
+          <div class="sh-room-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80" alt="Triple Sharing Room" />
+          </div>
+          <div class="sh-room-body">
+            <div class="sh-room-type">Triple Sharing Room</div>
+            <div class="sh-room-price">₹7,200 <span class="sh-period">/ month</span></div>
+            <ul class="sh-room-feats">
+              <li>✓ Spacious Layout with Individual Charging</li>
+              <li>✓ Individual Steel Cupboards &amp; Lockers</li>
+              <li>✓ Attached Washroom &amp; Daily Cleaning</li>
+              <li>✓ RO Water &amp; Power Backup</li>
+              <li>✓ Full Food Mess Included</li>
+            </ul>
+            <button class="sh-btn sh-btn-outline sh-btn-block" onclick="openInquiryModal('Triple Sharing')">Inquire / Book Now</button>
+          </div>
+        </div>
+
+        <div class="sh-room-card">
+          <div class="sh-room-img-wrapper">
+            <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80" alt="Four Sharing Room" />
+          </div>
+          <div class="sh-room-body">
+            <div class="sh-room-type">Four Sharing Executive</div>
+            <div class="sh-room-price">₹6,000 <span class="sh-period">/ month</span></div>
+            <ul class="sh-room-feats">
+              <li>✓ Budget Friendly for Students</li>
+              <li>✓ Individual Storage &amp; Personal Desk Space</li>
+              <li>✓ High Speed Wi-Fi &amp; Laundry Service</li>
+              <li>✓ Hygienic Daily Meals Included</li>
+              <li>✓ 24x7 Security &amp; CCTV Protection</li>
+            </ul>
+            <button class="sh-btn sh-btn-outline sh-btn-block" onclick="openInquiryModal('Four Sharing')">Inquire / Book Now</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="mess" class="sh-section sh-mess-section">
+      <div class="sh-section-head">
+        <div class="sh-sub-pill">HYGIENIC DINING &amp; MESS</div>
+        <h2>Nutritious 4-Time Daily Food Menu</h2>
+        <p>Prepared fresh with branded ingredients (Fortune Oil, Aashirvaad Atta, Amul Dairy). Click a day to view our weekly menu!</p>
+      </div>
+
+      <div class="sh-mess-tabs" id="sh-mess-tabs">
+        <button class="sh-mess-tab ${currentMessDay==='mon'?'active':''}" data-day="mon">Monday</button>
+        <button class="sh-mess-tab ${currentMessDay==='tue'?'active':''}" data-day="tue">Tuesday</button>
+        <button class="sh-mess-tab ${currentMessDay==='wed'?'active':''}" data-day="wed">Wednesday</button>
+        <button class="sh-mess-tab ${currentMessDay==='thu'?'active':''}" data-day="thu">Thursday</button>
+        <button class="sh-mess-tab ${currentMessDay==='fri'?'active':''}" data-day="fri">Friday</button>
+        <button class="sh-mess-tab ${currentMessDay==='sat'?'active':''}" data-day="sat">Saturday</button>
+        <button class="sh-mess-tab ${currentMessDay==='sun'?'active':''}" data-day="sun">Sunday (Special)</button>
+      </div>
+
+      <div class="sh-mess-display-card" id="sh-mess-content">
+        ${renderMessCard(currentMessDay)}
+      </div>
+    </section>
+
+    <section id="facilities" class="sh-section sh-fac-section">
+      <div class="sh-section-head">
+        <div class="sh-sub-pill">WORLD CLASS AMENITIES</div>
+        <h2>Everything You Need for a Seamless Living</h2>
+        <p>We take care of all household maintenance, security, and food so you can focus on work &amp; studies.</p>
+      </div>
+      <div class="sh-fac-grid">
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">📶</div>
+          <h4>High-Speed Wi-Fi</h4>
+          <p>300 Mbps dedicated fiber internet with mesh coverage across all floors.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">🛡️</div>
+          <h4>Biometric Security</h4>
+          <p>CCTV security cameras and smart biometric gate lock for keyless access.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">☀️</div>
+          <h4>24x7 Hot Water</h4>
+          <p>Solar water heating system paired with heavy-duty electric geysers.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">⚡</div>
+          <h4>100% Power Backup</h4>
+          <p>Automated silent diesel generator powering lights, fans &amp; Wi-Fi round the clock.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">🧺</div>
+          <h4>In-House Laundry</h4>
+          <p>Automatic washing machines and dedicated drying terrace area.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">💧</div>
+          <h4>RO Mineral Water</h4>
+          <p>Commercial multi-stage RO water plant with chilled and normal dispensers on every floor.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">📚</div>
+          <h4>AC Study Lounge</h4>
+          <p>Quiet, air-conditioned study hall with individual charging ports for exams &amp; remote work.</p>
+        </div>
+        <div class="sh-fac-card">
+          <div class="sh-fac-icon">🧹</div>
+          <h4>Daily Housekeeping</h4>
+          <p>Professional staff cleans rooms, corridors, and washrooms every day.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="gallery" class="sh-section sh-gallery-section">
+      <div class="sh-section-head">
+        <div class="sh-sub-pill">INFRASTRUCTURE GALLERY</div>
+        <h2>Take a Virtual Tour of Santoshi Boys Hostel</h2>
+        <p>Real photographs of our bedrooms, dining hall, lounge, and facilities.</p>
+      </div>
+      <div class="sh-gallery-grid">
+        <div class="sh-gallery-item">
+          <img src="https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=600&q=80" alt="Deluxe Bedroom" />
+          <div class="sh-gallery-cap">Deluxe AC Bedroom</div>
+        </div>
+        <div class="sh-gallery-item">
+          <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=600&q=80" alt="Hygienic Mess Hall" />
+          <div class="sh-gallery-cap">Hygienic Dining Hall</div>
+        </div>
+        <div class="sh-gallery-item">
+          <img src="https://images.unsplash.com/photo-1522771739844-6a9f6d5414a3?auto=format&fit=crop&w=600&q=80" alt="Study Lounge" />
+          <div class="sh-gallery-cap">Silent Study Lounge</div>
+        </div>
+        <div class="sh-gallery-item">
+          <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=600&q=80" alt="Triple Room" />
+          <div class="sh-gallery-cap">Triple Sharing Bed Room</div>
+        </div>
+        <div class="sh-gallery-item">
+          <img src="https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=600&q=80" alt="Modern Washrooms" />
+          <div class="sh-gallery-cap">Clean Modern Bathrooms</div>
+        </div>
+        <div class="sh-gallery-item">
+          <img src="https://images.unsplash.com/photo-1595526114035-0d45ed16cfbf?auto=format&fit=crop&w=600&q=80" alt="Hostel Building" />
+          <div class="sh-gallery-cap">Main Building Entrance</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="sh-section sh-test-section">
+      <div class="sh-section-head">
+        <div class="sh-sub-pill">RESIDENT TESTIMONIALS</div>
+        <h2>What Our Residents Say</h2>
+        <p>Over 500+ happy students &amp; professionals call Santoshi Boys Hostel their second home.</p>
+      </div>
+      <div class="sh-test-grid">
+        <div class="sh-test-card">
+          <div class="sh-test-stars">★★★★★</div>
+          <p>"The food quality is unmatched! Unlike other PGs in Gachibowli, Santoshi Boys Hostel serves genuine homely food with great variety every single day."</p>
+          <div class="sh-test-author">
+            <div class="sh-avatar">SR</div>
+            <div>
+              <div class="sh-test-name">Sai Rahul Reddy</div>
+              <div class="sh-test-role">Software Engineer @ TCS</div>
+            </div>
+          </div>
+        </div>
+        <div class="sh-test-card">
+          <div class="sh-test-stars">★★★★★</div>
+          <p>"Very clean rooms, super fast 300 Mbps Wi-Fi for work-from-home, and excellent biometric security. The management is extremely polite and quick to resolve issues."</p>
+          <div class="sh-test-author">
+            <div class="sh-avatar">AK</div>
+            <div>
+              <div class="sh-test-name">Anand Kumar</div>
+              <div class="sh-test-role">Student @ IIIT Hyderabad</div>
+            </div>
+          </div>
+        </div>
+        <div class="sh-test-card">
+          <div class="sh-test-stars">★★★★★</div>
+          <p>"Awesome location! Walking distance to DLF Cyber City and Mindspace. The silent study lounge was a lifesaver during my IT certification exams."</p>
+          <div class="sh-test-author">
+            <div class="sh-avatar">VS</div>
+            <div>
+              <div class="sh-test-name">Venkatesh Sharma</div>
+              <div class="sh-test-role">Data Analyst @ Infosys</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contact" class="sh-section sh-contact-section">
+      <div class="sh-contact-container">
+        <div class="sh-contact-info">
+          <div class="sh-sub-pill">GET IN TOUCH</div>
+          <h2>Visit Us Today or Reserve Your Room Online</h2>
+          <p>Call or drop by for a tour. Our hostel warden and manager are available 7 days a week to welcome you.</p>
+
+          <div class="sh-info-list">
+            <div class="sh-info-item">
+              <div class="sh-info-icon">📍</div>
+              <div>
+                <strong>Main Branch Address</strong>
+                <div>Plot No. 14, Financial District Rd, Near DLF Gate 2, Gachibowli, Hyderabad - 500032</div>
+              </div>
+            </div>
+            <div class="sh-info-item">
+              <div class="sh-info-icon">🏢</div>
+              <div>
+                <strong>Branch 2 (Madhapur)</strong>
+                <div>Road No. 36, Near Jubilee Hills Checkpost Metro &amp; Mindspace, Madhapur, Hyderabad</div>
+              </div>
+            </div>
+            <div class="sh-info-item">
+              <div class="sh-info-icon">📞</div>
+              <div>
+                <strong>Hostel Manager Phone</strong>
+                <div>+91 98480 11223 / +91 90000 44556</div>
+              </div>
+            </div>
+            <div class="sh-info-item">
+              <div class="sh-info-icon">✉️</div>
+              <div>
+                <strong>Email Address</strong>
+                <div>inquiry@santoshihostel.com</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="sh-portal-box">
+            <h4>Already a Resident or Staff Member?</h4>
+            <p>Access your rent receipts, submit maintenance requests, and track payments.</p>
+            <button class="sh-btn sh-btn-primary" onclick="go('login')">🔑 Go to Management Portal</button>
+          </div>
+        </div>
+
+        <div class="sh-contact-form-card">
+          <h3>Book a Room / Schedule Visit</h3>
+          <p>Fill out the details below and our team will get back to you within 15 minutes.</p>
+          <form id="sh-inquiry-form" onsubmit="handleInquirySubmit(event)">
+            <div class="field">
+              <label>Full Name *</label>
+              <input type="text" id="inq-name" placeholder="e.g. Rahul Sharma" required />
+            </div>
+            <div class="field">
+              <label>Mobile / WhatsApp Number *</label>
+              <input type="tel" id="inq-phone" placeholder="e.g. +91 98765 43210" required />
+            </div>
+            <div class="field">
+              <label>Preferred Room Type *</label>
+              <select id="inq-room">
+                <option value="Single Deluxe">Single Deluxe (AC / Non-AC)</option>
+                <option value="Double Sharing">Double Sharing</option>
+                <option value="Triple Sharing">Triple Sharing</option>
+                <option value="Four Sharing">Four Sharing Executive</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>Expected Joining Date</label>
+              <input type="date" id="inq-date" />
+            </div>
+            <div class="field">
+              <label>Message / Special Requirements</label>
+              <textarea id="inq-msg" rows="3" placeholder="Any specific requirements (e.g. AC room, ground floor...)"></textarea>
+            </div>
+            <button type="submit" class="sh-btn sh-btn-primary sh-btn-block">Submit Inquiry →</button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <footer class="sh-footer">
+      <div class="sh-footer-inner">
+        <div>
+          <div class="sh-brand-name" style="font-size:20px;color:#fff;">Santoshi Boys Hostel</div>
+          <p style="color:var(--text-faint);font-size:13px;margin-top:6px;max-width:320px;">Premier student and professional PG accommodation in Gachibowli &amp; Madhapur, Hyderabad.</p>
+        </div>
+        <div>
+          <div style="font-weight:700;color:#fff;margin-bottom:10px;">Quick Links</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;">
+            <a href="#hero">Home</a>
+            <a href="#rooms">Rooms &amp; Rent</a>
+            <a href="#mess">Mess Menu</a>
+            <a href="#facilities">Facilities</a>
+            <a href="#contact">Contact Us</a>
+          </div>
+        </div>
+        <div>
+          <div style="font-weight:700;color:#fff;margin-bottom:10px;">Management</div>
+          <div style="display:flex;flex-direction:column;gap:6px;font-size:13.5px;">
+            <a href="#" onclick="go('login');return false;">Resident Portal Login</a>
+            <a href="#" onclick="go('login');return false;">Staff Portal Login</a>
+            <a href="#" onclick="go('login');return false;">Owner Dashboard</a>
+          </div>
+        </div>
+      </div>
+      <div class="sh-footer-bottom">
+        © 2026 Santoshi Boys Hostel. All Rights Reserved. Designed for Maximum Comfort.
+      </div>
+    </footer>
+  </div>`;
+}
+
+function renderMessCard(dayKey){
+  const data = MESS_MENU[dayKey] || MESS_MENU['mon'];
+  return `
+  <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:16px;">
+    <div>
+      <h3 style="margin:0;font-family:var(--font-head);font-size:20px;">${data.day} Food Menu</h3>
+      <span style="font-size:12.5px;color:var(--text-muted);">Freshly prepared with pure ingredients</span>
+    </div>
+    <span class="badge badge-success">✓ 100% Hygienic</span>
+  </div>
+  <div class="sh-meal-grid">
+    <div class="sh-meal-box">
+      <div class="sh-meal-title"><span>🌅</span> Breakfast</div>
+      <div class="sh-meal-time">7:30 AM – 9:45 AM</div>
+      <div class="sh-meal-items">${data.bf}</div>
+    </div>
+    <div class="sh-meal-box">
+      <div class="sh-meal-title"><span>☀️</span> Lunch</div>
+      <div class="sh-meal-time">12:30 PM – 2:45 PM</div>
+      <div class="sh-meal-items">${data.lunch}</div>
+    </div>
+    <div class="sh-meal-box">
+      <div class="sh-meal-title"><span>☕</span> Evening Snacks</div>
+      <div class="sh-meal-time">5:15 PM – 6:30 PM</div>
+      <div class="sh-meal-items">${data.snacks}</div>
+    </div>
+    <div class="sh-meal-box">
+      <div class="sh-meal-title"><span>🌙</span> Dinner</div>
+      <div class="sh-meal-time">7:45 PM – 10:00 PM</div>
+      <div class="sh-meal-items">${data.dinner}</div>
+    </div>
+  </div>`;
+}
+
+function attachWebsiteHandlers(){
+  const tabs = document.querySelectorAll('.sh-mess-tab');
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const day = tab.dataset.day;
+      currentMessDay = day;
+      document.getElementById('sh-mess-content').innerHTML = renderMessCard(day);
+    });
+  });
+}
+
+function toggleMobileNav(){
+  const menu = document.getElementById('sh-mobile-menu');
+  if(menu) menu.classList.toggle('hidden');
+}
+
+function openInquiryModal(roomType = 'Single Deluxe'){
+  openModal(`
+    <div class="modal-head">
+      <h3 style="margin:0;font-size:17px;font-family:var(--font-head);">Inquire for ${esc(roomType)}</h3>
+      <button class="icon-btn" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:13px;color:var(--text-muted);margin:0 0 16px;">Leave your contact details and our hostel warden will call you to confirm availability.</p>
+      <form onsubmit="handleInquiryModalSubmit(event, '${esc(roomType)}')">
+        <div class="field"><label>Your Full Name *</label><input id="mod-inq-name" required placeholder="e.g. Rahul Reddy"></div>
+        <div class="field"><label>Mobile Number (WhatsApp) *</label><input id="mod-inq-phone" type="tel" required placeholder="+91 98765 43210"></div>
+        <div class="field"><label>Expected Move-in Date</label><input id="mod-inq-date" type="date"></div>
+        <button class="btn btn-primary btn-block" style="margin-top:10px;" type="submit">Submit Inquiry →</button>
+      </form>
+    </div>
+  `);
+}
+
+function handleInquirySubmit(e){
+  e.preventDefault();
+  const name = document.getElementById('inq-name').value;
+  toast(`Thank you ${name}! Our Santoshi Hostel warden will call you shortly.`, 'success');
+  e.target.reset();
+}
+
+function handleInquiryModalSubmit(e, roomType){
+  e.preventDefault();
+  const name = document.getElementById('mod-inq-name').value;
+  closeModal();
+  toast(`Inquiry for ${roomType} submitted successfully for ${name}!`, 'success');
+}
+
 /* ---------------- AUTH / USERS ---------------- */
 const DEMO_USERS = [
   { email:'owner@demo.com', role:'owner', name:'Ananth Rao', title:'Owner / Super Admin' },
@@ -514,7 +1242,7 @@ const ROLE_LABEL = { owner:'Owner / Super Admin', manager:'Manager', accountant:
 const STATE = {
   user: null,
   theme: 'light',
-  view: 'login',
+  view: 'website',
   params: {},
   toggles: {},
   filters: { tenantsQ:'', tenantsStatus:'all', propertyFilter:'all', paymentsQ:'', paymentsMethod:'all' },
@@ -612,7 +1340,7 @@ const BOTTOM_NAV = {
 
 /* ---------------- ROUTER / RENDER ---------------- */
 function setView(view, params={}){
-  if(view!=='login' && !canAccess(view)){
+  if(view!=='website' && view!=='login' && !canAccess(view)){
     STATE.view='access-denied'; STATE.params={attempted:view}; render(); return;
   }
   STATE.view = view; STATE.params = params; window.scrollTo(0,0); render();
@@ -634,7 +1362,16 @@ function toggleTheme(){
 
 function render(){
   const app = document.getElementById('app');
-  if(!STATE.user || STATE.view==='login'){ app.innerHTML = renderLogin(); return; }
+  if(STATE.view === 'website'){
+    app.innerHTML = renderWebsite();
+    attachWebsiteHandlers();
+    window.scrollTo(0,0);
+    return;
+  }
+  if(!STATE.user || STATE.view==='login'){
+    app.innerHTML = renderLogin();
+    return;
+  }
   app.innerHTML = renderShell();
   attachGlobalHandlers();
 }
@@ -645,7 +1382,13 @@ function renderLogin(){
   <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:
       radial-gradient(1200px 600px at 10% -10%, var(--primary-light), transparent 60%),
       radial-gradient(1000px 500px at 110% 110%, var(--amber-light), transparent 55%), var(--bg);">
-    <div style="width:100%;max-width:400px;">
+    
+  <div style="width:100%;max-width:400px;margin-bottom:12px;">
+    <button class="btn btn-outline btn-block" style="background:var(--surface);border-radius:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="go('website')">
+      ← Back to Santoshi Boys Hostel Website
+    </button>
+  </div>
+<div style="width:100%;max-width:400px;">
       <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:26px;">
         <div style="width:42px;height:42px;border-radius:12px;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:19px;">N</div>
         <div style="font-family:var(--font-head);font-weight:800;font-size:22px;">Nestly</div>
@@ -723,6 +1466,7 @@ function renderShell(){
           <span>🔍</span><span>Search tenants, rooms, receipts…</span>
         </div>
         <div style="flex:1;" class="desktop-only"></div>
+        <button class="btn btn-outline btn-sm desktop-only" style="border-radius:20px;" onclick="go('website')">🌐 Website</button>
         <button class="icon-btn" title="Toggle theme" onclick="toggleTheme()">${STATE.theme==='light'?'🌙':'☀️'}</button>
         <button class="icon-btn desktop-only" title="Notifications" data-nav="notifications">🔔${unread?'<span class="dot-badge"></span>':''}</button>
         <div class="avatar desktop-only" style="cursor:pointer;" data-action="open-profile">${initials(STATE.user.name)}</div>
