@@ -1379,28 +1379,28 @@ function render(){
 /* ---------------- LOGIN VIEW ---------------- */
 function renderLogin(){
   return `
-  <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;background:
+  <div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px;background:
       radial-gradient(1200px 600px at 10% -10%, var(--primary-light), transparent 60%),
       radial-gradient(1000px 500px at 110% 110%, var(--amber-light), transparent 55%), var(--bg);">
     
-  <div style="width:100%;max-width:400px;margin-bottom:12px;">
-    <button class="btn btn-outline btn-block" style="background:var(--surface);border-radius:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;" onclick="go('website')">
-      ← Back to Santoshi Boys Hostel Website
-    </button>
-  </div>
-<div style="width:100%;max-width:400px;">
-      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin-bottom:26px;">
+    <div style="width:100%;max-width:420px;display:flex;flex-direction:column;gap:14px;margin:0 auto;">
+      <button class="btn btn-outline btn-block" style="background:var(--surface);border-radius:12px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px 16px;box-shadow:var(--shadow-1);" onclick="go('website')">
+        ← Back to Santoshi Boys Hostel Website
+      </button>
+
+      <div style="display:flex;align-items:center;gap:10px;justify-content:center;margin:6px 0 4px;">
         <div style="width:42px;height:42px;border-radius:12px;background:var(--primary);color:var(--primary-ink);display:flex;align-items:center;justify-content:center;font-family:var(--font-head);font-weight:800;font-size:19px;">N</div>
-        <div style="font-family:var(--font-head);font-weight:800;font-size:22px;">Nestly</div>
+        <div style="font-family:var(--font-head);font-weight:800;font-size:22px;">Santoshi Portal</div>
       </div>
-      <div class="card" style="padding:26px 22px;box-shadow:var(--shadow-2);">
-        <h1 style="font-size:19px;margin:0 0 4px;">Sign in to your property</h1>
-        <p class="section-sub" style="margin-bottom:20px;">Hostel &amp; PG Management, made simple.</p>
+
+      <div class="card" style="padding:24px 20px;box-shadow:var(--shadow-2);border-radius:18px;">
+        <h1 style="font-size:19px;margin:0 0 4px;text-align:center;">Sign in to Management Portal</h1>
+        <p class="section-sub" style="margin-bottom:20px;text-align:center;font-size:13px;color:var(--text-muted);">Santoshi Boys Hostel &amp; PG Management</p>
         <div class="field"><label>Email or mobile number</label><input id="login-email" placeholder="owner@demo.com" value="owner@demo.com"></div>
         <div class="field"><label>Password</label><input id="login-pass" type="password" placeholder="••••••••" value="demo123"></div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;font-size:12.5px;">
           <label style="display:flex;align-items:center;gap:6px;color:var(--text-muted);"><input type="checkbox" checked style="width:14px;height:14px;"> Remember me</label>
-          <a href="#" style="color:var(--primary);font-weight:600;">Forgot password?</a>
+          <a href="#" style="color:var(--primary);font-weight:600;" onclick="event.preventDefault();toast('Demo build — select demo role below');">Forgot password?</a>
         </div>
         <button class="btn btn-primary btn-block" onclick="doLogin()">Login</button>
 
@@ -1409,12 +1409,12 @@ function renderLogin(){
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
           ${DEMO_USERS.map(u=>`
-            <button class="btn btn-outline btn-sm" style="justify-content:flex-start;" onclick="login('${u.role}')">
+            <button class="btn btn-outline btn-sm" style="justify-content:flex-start;padding:8px 10px;font-size:12.5px;" onclick="login('${u.role}')">
               <span>${ {owner:'👑',manager:'🏢',accountant:'💳',warden:'🛎️',worker:'🧰'}[u.role] }</span> ${u.title}
             </button>`).join('')}
         </div>
       </div>
-      <p style="text-align:center;color:var(--text-faint);font-size:12px;margin-top:16px;">Demo build for evaluation purposes — no real data is stored.</p>
+      <p style="text-align:center;color:var(--text-faint);font-size:12px;margin-top:4px;">Demo build for evaluation purposes — no real data is stored.</p>
     </div>
   </div>`;
 }
